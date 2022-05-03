@@ -21,6 +21,8 @@ elseif("${ARCH}" STREQUAL "x86")
   else()
     set(triple i686-pc-none-elf)
   endif()
+elseif("${ARCH}" STREQUAL "hexagon")
+    set(triple hexagon-none-elf)
 endif()
 
 set(CMAKE_C_COMPILER_TARGET   ${triple})

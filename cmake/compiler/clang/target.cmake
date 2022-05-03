@@ -31,6 +31,11 @@ if(NOT "${ARCH}" STREQUAL "posix")
 
     include(${ZEPHYR_BASE}/cmake/compiler/gcc/target_arm.cmake)
   endif()
+  if("${ARCH}" STREQUAL "hexagon")
+#   list(APPEND TOOLCHAIN_LD_FLAGS
+#     -fuse-ld=lld
+#     )
+  endif()
 
   foreach(file_name include/stddef.h)
     execute_process(

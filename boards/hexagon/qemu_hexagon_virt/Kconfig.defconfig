@@ -1,0 +1,9 @@
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD
+        default "qemu_hexagon_virt"
+
+
+# /pkg/qct/software/hexagon/releases/tools/8.4.08/Tools//bin/hexagon-llvm-objcopy: error: too many positional arguments
+CONFIG_BUILD_OUTPUT_BIN=n

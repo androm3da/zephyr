@@ -4,6 +4,7 @@
 
 macro(toolchain_ld_base)
 
+message(WARNING "This is *NOT* lld")
   if(NOT PROPERTY_LINKER_SCRIPT_DEFINES)
     set_property(GLOBAL PROPERTY PROPERTY_LINKER_SCRIPT_DEFINES -D__GCC_LINKER_CMD__)
   endif()

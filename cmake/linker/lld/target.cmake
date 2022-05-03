@@ -105,6 +105,9 @@ function(toolchain_ld_link_elf)
   )
 endfunction(toolchain_ld_link_elf)
 
+macro(toolchain_ld_base)
+message(WARNING "This *is* lld")
+endmacro()
 
 # Load toolchain_ld-family macros
 include(${ZEPHYR_BASE}/cmake/linker/ld/target_base.cmake)

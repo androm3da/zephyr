@@ -1,0 +1,39 @@
+# Hexagon architecture configuration options
+
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Hexagon Options"
+	depends on Hexagon
+
+config ARCH
+	default "hexagon"
+
+config HEXAGON_HVX
+	bool "Hexagon HVX Support"
+	select HVX
+
+config NUM_IRQS
+	int
+
+config CPU_V65
+	bool
+	select ARCH_HAS_CUSTOM_SWAP_TO_MAIN
+#select HAS_CMSIS_CORE
+#select HAS_FLASH_LOAD_OFFSET
+	select ARCH_HAS_SINGLE_THREAD_SUPPORT
+	select ARCH_HAS_THREAD_ABORT
+#select ARCH_HAS_TRUSTED_EXECUTION if ARM_TRUSTZONE_M
+	select ARCH_HAS_STACK_PROTECTION
+	select ARCH_HAS_USERSPACE
+	select ARCH_HAS_NOCACHE_MEMORY_SUPPORT
+#select ARCH_HAS_RAMFUNC_SUPPORT
+#select ARCH_HAS_NESTED_EXCEPTION_DETECTION
+	select ARCH_HAS_EXTRA_EXCEPTION_INFO
+	select ARCH_HAS_TIMING_FUNCTIONS
+#select ARCH_SUPPORTS_ARCH_HW_INIT
+	imply XIP
+	help
+	  This option signifies the use of a V65 DSP.
+
+endmenu
