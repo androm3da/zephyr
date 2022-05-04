@@ -16,6 +16,9 @@ config HEXAGON_HVX
 config NUM_IRQS
 	int
 
+config SOC_SERIES_HEXAGON_VIRT
+	bool
+
 config CPU_V65
 	bool
 	select ARCH_HAS_CUSTOM_SWAP_TO_MAIN

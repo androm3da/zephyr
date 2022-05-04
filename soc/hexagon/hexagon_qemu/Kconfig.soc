@@ -1,3 +1,0 @@
-
-config SOC_HEXAGON_QEMU
-	bool "Hexagon QEMU"

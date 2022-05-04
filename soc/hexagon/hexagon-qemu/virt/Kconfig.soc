@@ -1,0 +1,13 @@
+# Copyright (c) 2020 Cobham Gaisler AB
+# SPDX-License-Identifier: Apache-2.0
+
+choice
+	prompt "QEMU Hexagon VirtIO Board"
+	depends on SOC_SERIES_HEXAGON_VIRT
+
+config SOC_HEXAGON_VIRT
+	bool "QEMU Hexagon VirtIO Board"
+	select ATOMIC_OPERATIONS_BUILTIN
+	select INCLUDE_RESET_VECTOR
+
+endchoice

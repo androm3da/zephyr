@@ -1,0 +1,12 @@
+# Hexagon SoC configuration options
+
+# SPDX-License-Identifier: Apache-2.0
+
+if SOC_HEXAGON
+
+config SOC
+	default "hexagon"
+
+
+endif
+

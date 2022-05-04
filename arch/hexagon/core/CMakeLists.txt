@@ -6,5 +6,6 @@ zephyr_library_sources(
   swap.c
   fatal.c
   cpu_idle.c
+  semihost.c
   swap_helper.S
 )

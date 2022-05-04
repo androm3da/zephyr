@@ -1,0 +1,12 @@
+# Copyright (c) 2016 Linaro Limited
+# SPDX-License-Identifier: Apache-2.0
+
+config SOC_FAMILY_HEXAGON_QEMU
+	bool
+
+config SOC_FAMILY
+	string
+	default "hexagon-qemu"
+	depends on SOC_FAMILY_HEXAGON_QEMU
+
+source "soc/hexagon/hexagon-qemu/*/Kconfig.soc"
