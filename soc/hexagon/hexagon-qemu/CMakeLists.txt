@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_sources(
-  soc.c
+  loader.c
 )
 
+add_subdirectory(virt)

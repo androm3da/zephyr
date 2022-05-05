@@ -5,6 +5,7 @@ config BOARD_QEMU_HEXAGON_VIRT
 	bool "Hexagon Emulation (QEMU)"
 	select HEXAGON
 	select QEMU_TARGET
+	select HAVE_CUSTOM_LINKER_SCRIPT
 
 # /pkg/qct/software/hexagon/releases/tools/8.4.08/Tools//bin/hexagon-llvm-objcopy: error: too many positional arguments
 CONFIG_BUILD_OUTPUT_BIN=n

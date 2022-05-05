@@ -23,5 +23,3 @@ long semihost_exec(enum semihost_instr instr, void *args)
             return 0;
     }
 }
-
-

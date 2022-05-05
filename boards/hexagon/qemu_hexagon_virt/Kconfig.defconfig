@@ -7,3 +7,11 @@ config BOARD
 
 # /pkg/qct/software/hexagon/releases/tools/8.4.08/Tools//bin/hexagon-llvm-objcopy: error: too many positional arguments
 CONFIG_BUILD_OUTPUT_BIN=n
+
+
+config HAVE_CUSTOM_LINKER_SCRIPT
+	default y
+
+config CUSTOM_LINKER_SCRIPT
+	default "${ZEPHYR_BASE}/boards/hexagon/qemu_hexagon_virt/static-executable.lcs.template"
+
