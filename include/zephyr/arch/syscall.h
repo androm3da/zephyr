@@ -23,6 +23,8 @@
 #include <arch/arc/syscall.h>
 #elif defined(CONFIG_RISCV)
 #include <arch/riscv/syscall.h>
+#elif defined(CONFIG_HEXAGON)
+#include <arch/hexagon/syscall.h>
 #endif
 
 #endif /* ZEPHYR_INCLUDE_ARCH_SYSCALL_H_ */
