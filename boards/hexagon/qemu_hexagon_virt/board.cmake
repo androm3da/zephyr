@@ -4,7 +4,7 @@
 set(SUPPORTED_EMU_PLATFORMS qemu)
 #set(QEMU_ARCH hexagon)
 
-set(QEMU_CPU_TYPE_${ARCH} generic)
+set(QEMU_CPU_TYPE_${ARCH} any)
 
 set(QEMU_MACH virt)
 
@@ -19,7 +19,7 @@ if(CONFIG_XIP)
   #   ... -drive if=pflash,file=build/zephyr/zephyr.bin,format=raw
   # without having to pad the binary file to the FLASH size
   set(QEMU_KERNEL_OPTION
-  -kernel ${PROJECT_BINARY_DIR}/${CONFIG_KERNEL_BIN_NAME}.bin
+  -kernel ${PROJECT_BINARY_DIR}/${CONFIG_KERNEL_BIN_NAME}.elf
   )
 endif()
 
