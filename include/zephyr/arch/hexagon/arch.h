@@ -75,18 +75,18 @@ static ALWAYS_INLINE void arch_nop(void)
 	__asm__ volatile("nop");
 }
 
-extern uint32_t sys_clock_cycle_get_32(void);
-
 static inline uint32_t arch_k_cycle_get_32(void)
 {
-	return sys_clock_cycle_get_32();
+	uint32_t val;
+	__asm__ __volatile__("%0 = pcyclelo\n" : "=r"(val));
+	return val;
 }
-
-extern uint64_t sys_clock_cycle_get_64(void);
 
 static inline uint64_t arch_k_cycle_get_64(void)
 {
-	return sys_clock_cycle_get_64();
+	uint64_t val;
+	__asm__ __volatile__("%0 = pcycle\n" : "=r"(val));
+	return val;
 }
 
 #ifdef __cplusplus
