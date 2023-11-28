@@ -56,6 +56,14 @@ struct _thread_arch {
 
 typedef struct _thread_arch _thread_arch_t;
 
+#if defined(CONFIG_HVX)
+struct z_hexagon_hvx_context {
+    /* FIXME */
+    /* v0-31, q0-N */
+    /* ssr.xa? */
+};
+#endif
+
 #endif /* _ASMLANGUAGE */
 
 #endif /* ZEPHYR_INCLUDE_ARCH_HEXAGON_THREAD_H_ */

@@ -15,12 +15,19 @@
 /* SSR CAUSE bits */
 #define SSR_CAUSE_MASK 0x0000007f
 
-#define _hexagon_read_sys_reg(reg)                                                                 \
-	({                                                                                         \
-		uint32_t val;                                                                      \
-		__asm__ __volatile__("%0 = " STRINGIFY(reg) "\n" : "=r"(val));                     \
-		val;                                                                               \
+/* SSR User Mode, EXception, Guest Mode bits: */
+#define SSR_UM BIT(16)
+#define SSR_EX BIT(17)
+#define SSR_GM BIT(19)
+
+#define _hexagon_read_sys_reg_(reg, reg_t)                                \
+	({                                                                    \
+		reg_t val;                                                        \
+		__asm__ __volatile__("%0 = " STRINGIFY(reg) "\n" : "=r"(val));    \
+		val;                                                              \
 	})
+#define _hexagon_read_sys_reg(reg) _hexagon_read_sys_reg_(reg, uint32_t)
+#define _hexagon_read_sys_reg_pair(reg) _hexagon_read_sys_reg_(reg, uint64_t)
 
 #define read_ssr() _hexagon_read_sys_reg(ssr)
 #define read_badva0() _hexagon_read_sys_reg(badva0)

@@ -11,8 +11,6 @@
 
 #include <offsets.h>
 
-#define _thread_offset_to_sp (___thread_t_callee_saved_OFFSET + ___callee_saved_t_sp_OFFSET)
-
 #define _thread_offset_to_r16 (___thread_t_callee_saved_OFFSET + ___callee_saved_t_r16_OFFSET)
 
 #define _thread_offset_to_r17 (___thread_t_callee_saved_OFFSET + ___callee_saved_t_r17_OFFSET)
