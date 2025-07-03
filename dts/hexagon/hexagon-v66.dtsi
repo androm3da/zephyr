@@ -1,0 +1,48 @@
+/*
+ * Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <dt-bindings/interrupt-controller/hexagon-intc.h>
+#include <mem.h>
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu0: cpu@0 {
+			device_type = "cpu";
+			compatible = "qcom,hexagon-v66";
+			reg = <0>;
+			clock-frequency = <500000000>;
+		};
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		intc: interrupt-controller@0 {
+			#address-cells = <1>;
+			compatible = "qcom,hexagon-intc";
+			#interrupt-cells = <2>;
+			interrupt-controller;
+			reg = <0x0 0x1000>;
+		};
+
+		uart0: uart@1c090000 {
+			compatible = "arm,pl011";
+			reg = <0x1c090000 0x1000>;
+			interrupts = <5 0>;
+			interrupt-parent = <&intc>;
+			status = "disabled";
+		};
+	};
+};

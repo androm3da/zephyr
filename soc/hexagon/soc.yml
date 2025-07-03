@@ -1,0 +1,6 @@
+family:
+- name: hexagon
+  series:
+  - name: hexagon_v66
+    socs:
+    - name: hexagon_v66

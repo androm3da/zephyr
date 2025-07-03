@@ -1,0 +1,15 @@
+# Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+config SOC_FAMILY_HEXAGON
+	bool
+
+if SOC_FAMILY_HEXAGON
+
+config SOC_FAMILY
+	string
+	default "hexagon"
+
+rsource "*/Kconfig.soc"
+
+endif # SOC_FAMILY_HEXAGON

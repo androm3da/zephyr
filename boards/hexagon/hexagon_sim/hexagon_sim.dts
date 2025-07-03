@@ -1,0 +1,38 @@
+/*
+ * Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+
+#include <hexagon/hexagon-v66.dtsi>
+#include <mem.h>
+
+/ {
+	model = "Hexagon Simulator";
+	compatible = "qcom,hexagon-sim";
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+	};
+
+	sram0: memory@0 {
+		device_type = "memory";
+		compatible = "mmio-sram";
+		reg = <0x00000000 DT_SIZE_M(256)>;
+	};
+
+	flash0: flash@80000000 {
+		compatible = "soc-nv-flash";
+		reg = <0x80000000 DT_SIZE_M(16)>;
+	};
+};
+
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+};

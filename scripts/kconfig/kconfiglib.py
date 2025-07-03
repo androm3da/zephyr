@@ -3908,7 +3908,7 @@ class Kconfig(object):
                                        .format(sym.name_and_loc))
 
                     elif node.prompt:
-                        self._warn("the choice symbol {} is defined with a "
+                        self._warn("the choice symbol '{}' is defined with a "
                                    "prompt outside the choice"
                                    .format(sym.name_and_loc))
 

@@ -1,0 +1,37 @@
+# Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+if SOC_HEXAGON_V66
+
+config SOC
+	default "hexagon_v66"
+
+config SOC_SERIES
+	default "hexagon_v66"
+
+config SOC_PART_NUMBER
+	default "HEXAGON_V66"
+
+config SYS_CLOCK_HW_CYCLES_PER_SEC
+	default 500000000
+
+config NUM_IRQS
+	default 32
+
+config HEXAGON_VM
+	bool
+	default y
+
+config HEXAGON_HAS_V66
+	bool
+	default y
+
+config HEXAGON_HAS_V65
+	bool
+	default y
+
+config HEXAGON_HAS_V60
+	bool
+	default y
+
+endif # SOC_HEXAGON_V66

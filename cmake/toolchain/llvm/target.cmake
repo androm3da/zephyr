@@ -39,6 +39,8 @@ elseif("${ARCH}" STREQUAL "riscv")
   else()
     set(triple riscv32-unknown-elf)
   endif()
+elseif("${ARCH}" STREQUAL "hexagon")
+  set(triple hexagon-none-elf)
 endif()
 
 if(DEFINED triple)
@@ -47,6 +49,22 @@ if(DEFINED triple)
   set(CMAKE_CXX_COMPILER_TARGET ${triple})
 
   unset(triple)
+endif()
+
+# Hexagon-specific flags
+if("${ARCH}" STREQUAL "hexagon")
+  list(APPEND TOOLCHAIN_C_FLAGS
+    -mv66
+    -mhvx
+    -fno-exceptions
+    -fno-unwind-tables
+    -G0
+  )
+
+  list(APPEND TOOLCHAIN_LD_FLAGS
+    -Wl,--gc-sections
+    -Wl,--build-id=none
+  )
 endif()
 
 if(CONFIG_LIBGCC_RTLIB)

@@ -1,0 +1,15 @@
+# Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_HEXAGON_SIM
+
+config BOARD
+	default "hexagon_sim"
+
+config SYS_CLOCK_HW_CYCLES_PER_SEC
+	default 500000000
+
+config UART_PL011
+	default y if SERIAL
+
+endif # BOARD_HEXAGON_SIM

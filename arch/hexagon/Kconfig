@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config HEXAGON
+	bool
+	select ARCH_HAS_THREAD_LOCAL_STORAGE
+	select ARCH_HAS_TIMING_FUNCTIONS
+	select ARCH_HAS_STACK_PROTECTION if HEXAGON_HAS_V65
+	select ARCH_HAS_USERSPACE if HEXAGON_HAS_V66
+	select USE_SWITCH
+	select HAS_DTS
+	help
+	  Qualcomm Hexagon DSP architecture
+
+config HEXAGON_HAS_V60
+	bool
+	help
+	  Hexagon V60 architecture
+
+config HEXAGON_HAS_V65
+	bool
+	select HEXAGON_HAS_V60
+	help
+	  Hexagon V65 architecture
+
+config HEXAGON_HAS_V66
+	bool
+	select HEXAGON_HAS_V65
+	help
+	  Hexagon V66 architecture
+
+config HEXAGON_VM
+	bool "Use Hexagon Virtual Machine interface"
+	default y
+	help
+	  Use the Hexagon VM interface for system calls and hardware access
+
+config NUM_IRQS
+	int
+	default 32
+
+config HEXAGON_THREAD_SIZE
+	int "Hexagon hardware thread stack size"
+	default 512
+	help
+	  Stack size for each hardware thread
+
+config ARCH
+	default "hexagon" if HEXAGON
+
+if HEXAGON
+
+source "arch/hexagon/core/Kconfig"
+
+endif # HEXAGON
+

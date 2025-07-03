@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#ifndef ZEPHYR_INCLUDE_DT_BINDINGS_INTERRUPT_CONTROLLER_HEXAGON_INTC_H_
+#define ZEPHYR_INCLUDE_DT_BINDINGS_INTERRUPT_CONTROLLER_HEXAGON_INTC_H_
+
+/* Interrupt flags */
+#define HEXAGON_IRQ_TYPE_NONE           0
+#define HEXAGON_IRQ_TYPE_EDGE_RISING    1
+#define HEXAGON_IRQ_TYPE_EDGE_FALLING   2
+#define HEXAGON_IRQ_TYPE_EDGE_BOTH      3
+#define HEXAGON_IRQ_TYPE_LEVEL_HIGH     4
+#define HEXAGON_IRQ_TYPE_LEVEL_LOW      8
+
+#endif /* ZEPHYR_INCLUDE_DT_BINDINGS_INTERRUPT_CONTROLLER_HEXAGON_INTC_H_ */
