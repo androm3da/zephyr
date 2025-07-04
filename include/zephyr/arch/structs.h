@@ -29,6 +29,8 @@
 #include <zephyr/arch/riscv/structs.h>
 #elif defined(CONFIG_ARM)
 #include <zephyr/arch/arm/structs.h>
+#elif defined(CONFIG_HEXAGON)
+#include <zephyr/arch/hexagon/structs.h>
 #else
 
 /* Default definitions when no architecture specific definitions exist. */

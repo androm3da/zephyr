@@ -5,6 +5,8 @@ archs:
     path: arm
   - name: arm64
     path: arm64
+  - name: hexagon
+    path: hexagon
   - name: mips
     path: mips
   - name: nios2

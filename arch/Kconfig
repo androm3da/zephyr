@@ -1164,3 +1164,6 @@ config ARCH_HAS_CUSTOM_CURRENT_IMPL
 	help
 	  Select when architecture implements arch_current_thread() &
 	  arch_current_thread_set().
+
+# Include hexagon architecture Kconfig
+source "arch/hexagon/Kconfig"

@@ -8,11 +8,19 @@
 #include <zephyr/arch/cpu.h>
 #include <zephyr/tracing/tracing.h>
 #include <zephyr/irq.h>
-#include <hexagon_vm.h>
+#include <zephyr/sw_isr_table.h>
 
 extern void z_hexagon_fatal_error(unsigned int reason, const struct arch_esf *esf);
 
-static struct _isr_table_entry _sw_isr_table[CONFIG_NUM_IRQS];
+struct _isr_table_entry _sw_isr_table[CONFIG_NUM_IRQS];
+
+/* HVM constants */
+#define HVM_TRAP0_VMSETIE 3
+#define HVM_TRAP0_VMGETIE 4
+
+/* Simple stubs for VM functions */
+static inline void hvm_trap0_2(int op, int arg1, int arg2) { }
+static inline int hvm_trap0_1(int op, int arg) { return 0; }
 
 void arch_irq_enable(unsigned int irq)
 {
@@ -46,16 +54,17 @@ int arch_irq_is_enabled(unsigned int irq)
 /**
  * @brief Connect an ISR to an interrupt
  */
-void arch_irq_connect_dynamic(unsigned int irq, unsigned int priority,
+int arch_irq_connect_dynamic(unsigned int irq, unsigned int priority,
 		      void (*routine)(const void *parameter),
 		      const void *parameter, uint32_t flags)
 {
 	if (irq >= CONFIG_NUM_IRQS) {
-		return;
+		return -EINVAL;
 	}
 
 	_sw_isr_table[irq].arg = parameter;
 	_sw_isr_table[irq].isr = routine;
+	return 0;
 }
 
 /**
@@ -75,6 +84,13 @@ void z_hexagon_irq_handler(uint32_t irq)
 	if (entry->isr) {
 		entry->isr(entry->arg);
 	}
+}
+
+/* Spurious interrupt handler */
+void z_irq_spurious(const void *parameter)
+{
+	ARG_UNUSED(parameter);
+	/* Spurious interrupt - do nothing */
 }
 
 void z_hexagon_irq_init(void)

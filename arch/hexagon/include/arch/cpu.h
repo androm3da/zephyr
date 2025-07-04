@@ -9,6 +9,7 @@
 
 #include <zephyr/types.h>
 #include <zephyr/sys/sys_io.h>
+#include <zephyr/arch/hexagon/arch.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,6 +21,7 @@ extern "C" {
 
 /* Stack alignment requirement */
 #define STACK_ALIGN 8
+#define ARCH_STACK_PTR_ALIGN 8
 
 /* Cache line size */
 #define HEXAGON_DCACHE_LINE_SIZE 32

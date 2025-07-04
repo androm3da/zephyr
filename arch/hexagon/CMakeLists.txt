@@ -6,7 +6,6 @@ zephyr_library_sources(
   core/cpu_idle.S
   core/fatal.c
   core/irq_manage.c
-  core/prep_c.c
   core/reset.S
   core/swap.S
   core/thread.c

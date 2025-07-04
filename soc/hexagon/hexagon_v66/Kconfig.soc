@@ -2,15 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 config SOC_SERIES_HEXAGON_V66
-	bool
+	bool "Hexagon V66 SoC series"
 
 config SOC_SERIES
 	string
 	default "hexagon_v66" if SOC_SERIES_HEXAGON_V66
 
 config SOC_HEXAGON_V66
-	bool
+	bool "Hexagon V66 SoC"
 	select SOC_SERIES_HEXAGON_V66
+	select HEXAGON
 
 config SOC
 	default "hexagon_v66" if SOC_HEXAGON_V66

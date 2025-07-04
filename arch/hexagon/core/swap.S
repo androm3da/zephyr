@@ -19,47 +19,56 @@ SECTION_FUNC(TEXT, z_hexagon_context_switch)
     if (p0) jump .Lrestore
 
     /* Save callee-saved registers */
-    r2 = add(r1, #_thread_offset_to_callee_saved)
-    memd(r2+#0) = r17:16
-    memd(r2+#8) = r19:18
-    memd(r2+#16) = r21:20
-    memd(r2+#24) = r23:22
-    memd(r2+#32) = r25:24
-    memd(r2+#40) = r27:26
+    r2 = add(r1, #___thread_t_callee_saved_OFFSET)
+    memw(r2+#0) = r16
+    memw(r2+#4) = r17
+    memw(r2+#8) = r18
+    memw(r2+#12) = r19
+    memw(r2+#16) = r20
+    memw(r2+#20) = r21
+    memw(r2+#24) = r22
+    memw(r2+#28) = r23
+    memw(r2+#32) = r24
+    memw(r2+#36) = r25
+    memw(r2+#40) = r26
+    memw(r2+#44) = r27
     memw(r2+#48) = r30  /* fp */
     memw(r2+#52) = r29  /* sp */
     memw(r2+#56) = r31  /* lr */
 
-    /* Save predicate and user registers */
-    r3 = p3:0
-    memw(r2+#60) = r3
+    /* Save user registers */
     r3 = usr
-    memw(r2+#64) = r3
+    memw(r2+#60) = r3
 
 .Lrestore:
     /* Restore new thread context */
-    r2 = add(r0, #_thread_offset_to_callee_saved)
+    r2 = add(r0, #___thread_t_callee_saved_OFFSET)
 
     /* Restore callee-saved registers */
-    r17:16 = memd(r2+#0)
-    r19:18 = memd(r2+#8)
-    r21:20 = memd(r2+#16)
-    r23:22 = memd(r2+#24)
-    r25:24 = memd(r2+#32)
-    r27:26 = memd(r2+#40)
+    r16 = memw(r2+#0)
+    r17 = memw(r2+#4)
+    r18 = memw(r2+#8)
+    r19 = memw(r2+#12)
+    r20 = memw(r2+#16)
+    r21 = memw(r2+#20)
+    r22 = memw(r2+#24)
+    r23 = memw(r2+#28)
+    r24 = memw(r2+#32)
+    r25 = memw(r2+#36)
+    r26 = memw(r2+#40)
+    r27 = memw(r2+#44)
     r30 = memw(r2+#48)  /* fp */
     r29 = memw(r2+#52)  /* sp */
     r31 = memw(r2+#56)  /* lr */
 
-    /* Restore predicate and user registers */
+    /* Restore user registers */
     r3 = memw(r2+#60)
-    p3:0 = r3
-    r3 = memw(r2+#64)
     usr = r3
 
     /* Update current thread pointer */
     r1 = ##_kernel
-    memw(r1+#_kernel_offset_to_current) = r0
+    r1 = add(r1, #___kernel_t_cpus_OFFSET)  /* Point to cpus[0] */
+    memw(r1+#___cpu_t_current_OFFSET) = r0  /* Set cpus[0].current */
 
     jumpr r31
 

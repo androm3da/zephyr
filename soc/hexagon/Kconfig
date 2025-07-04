@@ -10,6 +10,6 @@ config SOC_FAMILY
 	string
 	default "hexagon"
 
-rsource "*/Kconfig.soc"
+#rsource "*/Kconfig.soc"
 
 endif # SOC_FAMILY_HEXAGON

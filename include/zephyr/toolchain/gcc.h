@@ -552,7 +552,7 @@ do {                                                                    \
 		"\n\t.type\t" #name ",@object")
 
 #elif defined(CONFIG_NIOS2) || defined(CONFIG_RISCV) || \
-	defined(CONFIG_XTENSA) || defined(CONFIG_MIPS)
+	defined(CONFIG_XTENSA) || defined(CONFIG_MIPS) || defined(CONFIG_HEXAGON)
 
 /* No special prefixes necessary for constants in this arch AFAICT */
 #define GEN_ABSOLUTE_SYM(name, value)		\

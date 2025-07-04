@@ -37,11 +37,18 @@
 			reg = <0x0 0x1000>;
 		};
 
+		clk0: clock-controller {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <24000000>;
+		};
+
 		uart0: uart@1c090000 {
 			compatible = "arm,pl011";
 			reg = <0x1c090000 0x1000>;
 			interrupts = <5 0>;
 			interrupt-parent = <&intc>;
+			clocks = <&clk0>;
 			status = "disabled";
 		};
 	};

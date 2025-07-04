@@ -59,6 +59,9 @@
 	/* Not needed */
 #elif defined(CONFIG_SPARC)
 	OUTPUT_FORMAT("elf32-sparc")
+#elif defined(CONFIG_HEXAGON)
+	OUTPUT_FORMAT("elf32-hexagon")
+	OUTPUT_ARCH("hexagon")
 #else
 	#error Arch not supported.
 #endif

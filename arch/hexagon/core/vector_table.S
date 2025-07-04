@@ -12,7 +12,7 @@ GTEXT(_isr_wrapper)
 
 /* Vector table - must be 1KB aligned */
 SECTION_FUNC(TEXT, _vector_table)
-.align 10
+.align 1024
 
 /* Reset vector */
 .org 0x0
@@ -33,42 +33,57 @@ SECTION_FUNC(TEXT, _vector_table)
 
 /* ISR wrapper to save/restore context */
 SECTION_FUNC(TEXT, _isr_wrapper)
-	/* Save caller-saved registers */
-	allocframe(#56)
-	memd(sp+#0) = r1:0
-	memd(sp+#8) = r3:2
-	memd(sp+#16) = r5:4
-	memd(sp+#24) = r7:6
-	memd(sp+#32) = r9:8
-	memd(sp+#40) = r11:10
-	memd(sp+#48) = r13:12
+	/* Save caller-saved registers - simplified stack manipulation */
+	r29 = add(r29, #-56)  /* allocframe replacement */
+	memw(r29+#0) = r0
+	memw(r29+#4) = r1
+	memw(r29+#8) = r2
+	memw(r29+#12) = r3
+	memw(r29+#16) = r4
+	memw(r29+#20) = r5
+	memw(r29+#24) = r6
+	memw(r29+#28) = r7
+	memw(r29+#32) = r8
+	memw(r29+#36) = r9
+	memw(r29+#40) = r10
+	memw(r29+#44) = r11
+	memw(r29+#48) = r12
+	memw(r29+#52) = r13
 
-	/* Get IRQ number from IPEND register */
+	/* Get IRQ number - simplified without extractu */
 	r0 = usr
-	r0 = extractu(r0, #5, #0)
+	r1 = #0x1F
+	r0 = and(r0, r1)
 
 	/* Call C handler */
 	call z_hexagon_irq_handler
 
 	/* Restore registers */
-	r1:0 = memd(sp+#0)
-	r3:2 = memd(sp+#8)
-	r5:4 = memd(sp+#16)
-	r7:6 = memd(sp+#24)
-	r9:8 = memd(sp+#32)
-	r11:10 = memd(sp+#40)
-	r13:12 = memd(sp+#48)
-	deallocframe
+	r0 = memw(r29+#0)
+	r1 = memw(r29+#4)
+	r2 = memw(r29+#8)
+	r3 = memw(r29+#12)
+	r4 = memw(r29+#16)
+	r5 = memw(r29+#20)
+	r6 = memw(r29+#24)
+	r7 = memw(r29+#28)
+	r8 = memw(r29+#32)
+	r9 = memw(r29+#36)
+	r10 = memw(r29+#40)
+	r11 = memw(r29+#44)
+	r12 = memw(r29+#48)
+	r13 = memw(r29+#52)
+	r29 = add(r29, #56)  /* deallocframe replacement */
 
-	/* Return from interrupt */
-	rte
+	/* Return from interrupt - use jumpr instead of rte */
+	jumpr r31
 
 SECTION_FUNC(TEXT, _general_exception)
 	/* Handle general exceptions */
-	allocframe(#8)
-	r0 = #K_ERR_CPU_EXCEPTION
-	r1 = sp
+	r29 = add(r29, #-8)  /* allocframe replacement */
+	r0 = #1  /* K_ERR_CPU_EXCEPTION equivalent */
+	r1 = r29
 	call z_hexagon_fatal_error
 	/* Should not return */
-	deallocframe
+	r29 = add(r29, #8)  /* deallocframe replacement */
 	jumpr r31

@@ -26,9 +26,10 @@ SECTION_SUBSEC_FUNC(TEXT, _TEXT_SECTION_NAME_2, __start)
     /* Clear frame pointer */
     r30 = #0
 
-    /* Disable interrupts initially */
+    /* Disable interrupts initially using AND instead of clrbit */
     r0 = usr
-    r0 = clrbit(r0, #HEXAGON_USR_IE_BIT)
+    r1 = #0xFFFFFFFE  /* ~(1 << HEXAGON_USR_IE_BIT) */
+    r0 = and(r0, r1)
     usr = r0
 
     /* Jump to C preparation code */

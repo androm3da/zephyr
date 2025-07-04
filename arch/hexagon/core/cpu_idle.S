@@ -11,29 +11,36 @@ GTEXT(arch_cpu_idle)
 GTEXT(arch_cpu_atomic_idle)
 
 SECTION_FUNC(TEXT, arch_cpu_idle)
-    /* Enable interrupts */
+    /* Enable interrupts using OR instead of setbit */
     r0 = usr
-    r0 = setbit(r0, #HEXAGON_USR_IE_BIT)
+    r1 = #1
+    r0 = or(r0, r1)
     usr = r0
 
-    /* VM yield/wait */
-    r0 = #HVM_TRAP0_VMWAIT
-    trap0(#0)
+    /* Simple loop instead of VM call */
+    r0 = #100
+cpu_idle_loop:
+    r0 = add(r0, #-1)
+    p0 = cmp.eq(r0, #0)
+    if (!p0) jump cpu_idle_loop
 
     jumpr r31
 
 SECTION_FUNC(TEXT, arch_cpu_atomic_idle)
     /* Save and get interrupt state */
     r2 = usr
-    r0 = extractu(r2, #1, #HEXAGON_USR_IE_BIT)
+    r1 = #1
+    r0 = and(r2, r1)
 
-    /* Enable interrupts */
-    r2 = setbit(r2, #HEXAGON_USR_IE_BIT)
+    /* Enable interrupts using OR instead of setbit */
+    r2 = or(r2, r1)
     usr = r2
 
-    /* VM yield/wait */
-    r1 = #HVM_TRAP0_VMWAIT
-    trap0(#0)
+    /* Simple loop instead of VM call */
+    r1 = #100
+cpu_atomic_idle_loop:
+    r1 = add(r1, #-1)
+    p0 = cmp.eq(r1, #0)
+    if (!p0) jump cpu_atomic_idle_loop
 
-    /* Restore interrupt state from r0 */
     jumpr r31

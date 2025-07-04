@@ -31,6 +31,8 @@
 #include <zephyr/arch/posix/arch.h>
 #elif defined(CONFIG_SPARC)
 #include <zephyr/arch/sparc/arch.h>
+#elif defined(CONFIG_HEXAGON)
+#include <zephyr/arch/hexagon/arch.h>
 #endif
 
 #endif /* ZEPHYR_INCLUDE_ARCH_CPU_H_ */

@@ -19,11 +19,7 @@ static ALWAYS_INLINE void arch_kernel_init(void)
     /* Hexagon-specific initialization */
 }
 
-static ALWAYS_INLINE void arch_thread_return_value_set(struct k_thread *thread,
-                                                       unsigned int value)
-{
-    thread->arch.swap_return_value = value;
-}
+/* arch_thread_return_value_set is provided by kernel_internal.h when CONFIG_USE_SWITCH is enabled */
 
 extern void z_hexagon_setup_thread_stack(struct k_thread *thread,
                                         k_thread_stack_t *stack,
@@ -41,7 +37,7 @@ static inline void arch_switch_to_main_thread(struct k_thread *main_thread,
                                 _main, NULL, NULL, NULL);
 }
 
-extern void z_hexagon_context_switch(struct k_thread *new, struct k_thread *old);
+extern void z_hexagon_context_switch(struct k_thread *new, void **old_switch_handle);
 
 #define arch_switch(new, old) z_hexagon_context_switch(new, old)
 

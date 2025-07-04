@@ -3,6 +3,8 @@
 zephyr_library()
 
 zephyr_library_sources(
-  offsets/offsets.c
   crt0.S
+  hexagon_rt.S
+  timer.c
+  prep_c.c
 )

@@ -8,9 +8,8 @@
 #include <zephyr/init.h>
 
 /* Placeholder for PL011 initialization if needed */
-static int pl011_init(const struct device *dev)
+static int pl011_init(void)
 {
-    ARG_UNUSED(dev);
     return 0;
 }
 

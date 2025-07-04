@@ -7,12 +7,16 @@
 #include <zephyr/kernel.h>
 #include <zephyr/kernel_structs.h>
 #include <zephyr/arch/cpu.h>
-#include <hexagon_vm.h>
+#include <kernel_internal.h>
 
 extern FUNC_NORETURN void z_cstart(void);
-extern void _vector_table[];
-extern void soc_early_init(void);
-extern void z_hexagon_irq_init(void);
+extern char _vector_table[];
+
+/* Simple stubs for now */
+static inline void soc_early_init(void) { }
+
+/* Forward declare */
+void z_hexagon_irq_init(void);
 
 /**
  * @brief Prepare to and run C code
@@ -23,12 +27,6 @@ void z_prep_c(void)
 {
 	/* Perform early SOC initialization */
 	soc_early_init();
-
-	/* Initialize VM interface */
-	hvm_set_vector(_vector_table);
-
-	/* Enable interrupts at VM level */
-	hvm_enable_interrupts();
 
 	/* Initialize BSS */
 	z_bss_zero();

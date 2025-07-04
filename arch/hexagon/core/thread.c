@@ -14,7 +14,7 @@ void arch_new_thread(struct k_thread *thread, k_thread_stack_t *stack,
                     void *p1, void *p2, void *p3,
                     int prio, unsigned int options)
 {
-    char *pStackMem = Z_THREAD_STACK_BUFFER(stack);
+    char *pStackMem = K_THREAD_STACK_BUFFER(stack);
     void *stackEnd;
 
     /* Hexagon stack grows down */
