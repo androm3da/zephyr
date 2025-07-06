@@ -58,14 +58,16 @@ static inline bool arch_irq_unlocked(unsigned int key)
 /* Cycle counter functions */
 static inline uint32_t arch_k_cycle_get_32(void)
 {
-    /* Return a simple counter for now */
-    return 0;
+    uint32_t val;
+    __asm__ __volatile__("%0 = pcyclelo\n" : "=r"(val));
+    return val;
 }
 
 static inline uint64_t arch_k_cycle_get_64(void)
 {
-    /* Return a simple counter for now */
-    return 0;
+    uint64_t val;
+    __asm__ __volatile__("%0 = pcycle\n" : "=r"(val));
+    return val;
 }
 
 /* Timer function */

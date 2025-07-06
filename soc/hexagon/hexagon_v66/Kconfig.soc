@@ -18,3 +18,15 @@ config SOC
 
 config SOC_PART_NUMBER
 	default "HEXAGON_V66" if SOC_HEXAGON_V66
+
+config HEXAGON_FLASH_BASE_ADDRESS
+	hex "Hexagon flash base address"
+	default 0x80000000
+	help
+	  Base address of flash memory for Hexagon architecture.
+
+config HEXAGON_FLASH_SIZE
+	int "Hexagon flash size in KB"
+	default 16384
+	help
+	  Size of flash memory in KB for Hexagon architecture.

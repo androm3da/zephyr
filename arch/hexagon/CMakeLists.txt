@@ -7,6 +7,7 @@ zephyr_library_sources(
   core/fatal.c
   core/irq_manage.c
   core/reset.S
+  core/semihost.c
   core/swap.S
   core/thread.c
   core/vector_table.S

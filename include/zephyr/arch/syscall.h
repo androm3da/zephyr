@@ -23,6 +23,8 @@
 #include <zephyr/arch/riscv/syscall.h>
 #elif defined(CONFIG_XTENSA)
 #include <zephyr/arch/xtensa/syscall.h>
+#elif defined(CONFIG_HEXAGON)
+#include <zephyr/arch/hexagon/syscall.h>
 #endif
 
 #endif /* ZEPHYR_INCLUDE_ARCH_SYSCALL_H_ */
