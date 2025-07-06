@@ -4,12 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 config SEMIHOST
-	bool "Semihosting support for ARM and RISC-V targets"
-	depends on ARM || ARM64 || RISCV
+	bool "Semihosting support for ARM, RISC-V, and Hexagon targets"
+	depends on ARM || ARM64 || RISCV || HEXAGON
 	help
-	  Semihosting is a mechanism that enables code running on an ARM or
-	  RISC-V target to communicate and use the Input/Output facilities on
-	  a host computer that is running a debugger.
+	  Semihosting is a mechanism that enables code running on an ARM,
+	  RISC-V, or Hexagon target to communicate and use the Input/Output
+	  facilities on a host computer that is running a debugger.
 	  Additional information can be found in:
 	  https://developer.arm.com/documentation/dui0471/m/what-is-semihosting-
 	  https://github.com/riscv/riscv-semihosting-spec/blob/main/riscv-semihosting-spec.adoc
