@@ -1,0 +1,10 @@
+# Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_ENABLE_DCACHE
+	bool
+	default n
+
+config BOARD_ENABLE_ICACHE
+	bool
+	default n

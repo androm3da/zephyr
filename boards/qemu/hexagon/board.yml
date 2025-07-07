@@ -1,0 +1,6 @@
+board:
+  name: qemu_hexagon
+  full_name: QEMU Emulation for Hexagon
+  vendor: qemu
+  socs:
+    - name: hexagon_v66

@@ -1,0 +1,8 @@
+# Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_QEMU_HEXAGON
+	bool "QEMU Hexagon"
+	select SOC_SERIES_HEXAGON_V66
+	select SOC_HEXAGON_V66
+	select QEMU_TARGET

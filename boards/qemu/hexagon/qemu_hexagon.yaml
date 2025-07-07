@@ -1,0 +1,19 @@
+identifier: qemu_hexagon
+name: QEMU Emulation for Hexagon
+type: qemu
+simulation:
+  - name: qemu
+arch: hexagon
+toolchain:
+  - llvm
+supported:
+  - serial
+  - uart
+ram: 262144
+flash: 16384
+testing:
+  default: true
+  ignore_tags:
+    - net
+    - bluetooth
+    - display
