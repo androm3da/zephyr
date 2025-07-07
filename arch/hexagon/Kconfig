@@ -8,6 +8,7 @@ config HEXAGON
 	select ARCH_HAS_USERSPACE if HEXAGON_HAS_V66
 	select USE_SWITCH
 	select HAS_DTS
+	select LITTLE_ENDIAN
 	help
 	  Qualcomm Hexagon DSP architecture
 

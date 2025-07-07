@@ -9,6 +9,9 @@ config SOC
 config SOC_SERIES
 	default "hexagon_v66"
 
+config SOC_FAMILY
+	default "hexagon"
+
 config SOC_PART_NUMBER
 	default "HEXAGON_V66"
 

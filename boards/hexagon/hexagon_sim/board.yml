@@ -1,5 +1,0 @@
-board:
-  name: hexagon_sim
-  vendor: hexagon
-  socs:
-    - name: hexagon_v66

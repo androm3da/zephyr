@@ -15,11 +15,17 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		cpu0: cpu@0 {
+		cpu_0: cpu@0 {
 			device_type = "cpu";
 			compatible = "qcom,hexagon-v66";
 			reg = <0>;
 			clock-frequency = <500000000>;
+			i_cache_line_size = <32>;
+			d_cache_line_size = <32>;
+			i_cache_size = <32768>;
+			d_cache_size = <32768>;
+			i_cache_sets = <1>;
+			d_cache_sets = <1>;
 		};
 	};
 

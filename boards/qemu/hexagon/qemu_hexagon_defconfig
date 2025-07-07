@@ -1,5 +1,4 @@
 # SOC configuration is handled by HWMv2 automatically
-CONFIG_SOC_SERIES_HEXAGON_V66=y
 CONFIG_SOC_HEXAGON_V66=y
 CONFIG_SYS_CLOCK_HW_CYCLES_PER_SEC=500000000
 CONFIG_LLVM_USE_LLD=y
@@ -8,6 +7,7 @@ CONFIG_HEXAGON_FLASH_SIZE=16384
 
 # QEMU-specific configuration
 CONFIG_QEMU_ICOUNT_SHIFT=6
+CONFIG_COMPILER_OPT="-D__IEEE_LITTLE_ENDIAN -D__LITTLE_ENDIAN__"
 
 # Disable LVGL for Hexagon architecture (no display support yet)
 CONFIG_LVGL=n

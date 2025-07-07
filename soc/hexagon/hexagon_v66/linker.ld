@@ -13,8 +13,8 @@
   #define ROM_ADDR DT_REG_ADDR(DT_CHOSEN(zephyr_flash))
   #define ROM_SIZE DT_REG_SIZE(DT_CHOSEN(zephyr_flash))
 #else
-  #define ROM_ADDR CONFIG_HEXAGON_FLASH_BASE_ADDRESS
-  #define ROM_SIZE (CONFIG_HEXAGON_FLASH_SIZE * 1024)
+  #define ROM_ADDR DT_REG_ADDR(DT_CHOSEN(zephyr_flash))
+  #define ROM_SIZE DT_REG_SIZE(DT_CHOSEN(zephyr_flash))
 #endif
 
 #define RAM_ADDR DT_REG_ADDR(DT_CHOSEN(zephyr_sram))
@@ -22,10 +22,10 @@
 
 MEMORY
 {
-    ROM (rx) : ORIGIN = ROM_ADDR, LENGTH = ROM_SIZE
-    RAM (wx) : ORIGIN = RAM_ADDR, LENGTH = RAM_SIZE
+    ROMABLE_REGION (rx) : ORIGIN = ROM_ADDR, LENGTH = ROM_SIZE
+    RAMABLE_REGION (wx) : ORIGIN = RAM_ADDR, LENGTH = RAM_SIZE - 2K
     /* IDT_LIST: dedicated section for interrupt tables */
-    IDT_LIST (wx) : ORIGIN = RAM_ADDR + RAM_SIZE, LENGTH = 2K
+    IDT_LIST (wx) : ORIGIN = RAM_ADDR + RAM_SIZE - 2K, LENGTH = 2K
 }
 
 ENTRY(__start)
@@ -44,7 +44,7 @@ SECTIONS
         *(.iplt)
     }
 
-    GROUP_START(ROM)
+    GROUP_START(ROMABLE_REGION)
 
     _image_rom_start = ROM_ADDR;
 
@@ -57,7 +57,7 @@ SECTIONS
         *(.text.*)
         *(.gnu.linkonce.t.*)
         *(.eh_frame)
-    } GROUP_LINK_IN(ROM)
+    } GROUP_LINK_IN(ROMABLE_REGION)
 
     __text_end = .;
 
@@ -85,7 +85,7 @@ SECTIONS
         *(.sdata2.*)
         *(.gnu.linkonce.s2.*)
         PROVIDE(__sdata2_end = .);
-    } GROUP_LINK_IN(ROM)
+    } GROUP_LINK_IN(ROMABLE_REGION)
 
     #include <zephyr/linker/cplusplus-rom.ld>
 
@@ -93,14 +93,15 @@ SECTIONS
     _image_rom_end = .;
     __data_rom_start = ALIGN(4);
 
-    GROUP_END(ROM)
+    GROUP_END(ROMABLE_REGION)
 
-    GROUP_START(RAM)
+    GROUP_START(RAMABLE_REGION)
 
     SECTION_DATA_PROLOGUE(_DATA_SECTION_NAME,,)
     {
         __data_start = .;
         __data_ram_start = .;
+        __kernel_ram_start = .;
         *(.data)
         *(.data.*)
         *(.gnu.linkonce.d.*)
@@ -112,7 +113,7 @@ SECTIONS
         *(.sdata.*)
         *(.gnu.linkonce.s.*)
         PROVIDE(__sdata_end = .);
-    } GROUP_DATA_LINK_IN(RAMABLE_REGION, ROM)
+    } GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
     __data_end = .;
 
@@ -129,12 +130,20 @@ SECTIONS
         COMMON_SYMBOLS
         . = ALIGN(4);
         __bss_end = .;
-    } GROUP_LINK_IN(RAM)
+    } GROUP_LINK_IN(RAMABLE_REGION)
+
+    /* Interrupt stack */
+    SECTION_PROLOGUE(.irq_stack,(NOLOAD),)
+    {
+        . = ALIGN(8);
+        _interrupt_stack = .;
+        . += __z_interrupt_stack_SIZEOF;
+    } GROUP_LINK_IN(RAMABLE_REGION)
 
     __kernel_ram_end = .;
     __kernel_ram_size = __kernel_ram_end - __kernel_ram_start;
 
-    GROUP_END(RAM)
+    GROUP_END(RAMABLE_REGION)
 
     /* Interrupt descriptor table */
     GROUP_START(IDT_LIST)
