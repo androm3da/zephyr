@@ -20,12 +20,12 @@ SECTION_FUNC(TEXT, _vector_table)
 
 /* General exception */
 .org 0x100
-	jump _general_exception
+	jump _K_enter_genex
 
 /* Interrupt vectors */
 .org 0x200
 .rept 32
-	jump _isr_wrapper
+	jump _K_enter_interrupt
 	nop
 	nop
 	nop

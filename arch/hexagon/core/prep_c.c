@@ -17,6 +17,7 @@ static inline void soc_early_init(void) { }
 
 /* Forward declare */
 void z_hexagon_irq_init(void);
+void z_hexagon_hvm_init(void);
 
 /**
  * @brief Prepare to and run C code
@@ -31,8 +32,8 @@ void z_prep_c(void)
 	/* Initialize BSS */
 	z_bss_zero();
 
-	/* Initialize interrupt system */
-	z_hexagon_irq_init();
+	/* Initialize HVM and interrupt system */
+	z_hexagon_hvm_init();
 
 #ifdef CONFIG_XIP
 	/* Copy data from ROM to RAM */

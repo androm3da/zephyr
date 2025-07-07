@@ -7,4 +7,6 @@ zephyr_library_sources(
   hexagon_rt.S
   timer.c
   prep_c.c
+  vm_entry.S
+  vm_events.c
 )
