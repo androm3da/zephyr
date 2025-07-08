@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+
+config ARCH_IS_SET
+	bool
+	default y
+
+config ARCH
+	string
+	default "hexagon"
+
+config HEXAGON
+	bool
+	default y
+	select ARCH_HAS_THREAD_LOCAL_STORAGE if CPU_HAS_TLS
+	help
+	  Qualcomm Hexagon DSP architecture
+
+config HEXAGON_VM
+	bool
+	default y
+	help
+	  Hexagon Virtual Machine support
+
+config HEXAGON_HW_THREADS
+	int "Number of hardware threads"
+	default 1
+	range 1 6
+	help
+	  Number of hardware threads supported by the Hexagon core
+
+menu "Hexagon Options"
+
+config HEXAGON_VM_VERSION
+	hex "Hexagon VM version"
+	default 0x1
+	help
+	  Version of Hexagon VM interface to use
+
+endmenu
+
+source "arch/hexagon/core/Kconfig"

@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+
+config BOARD_QEMU_HEXAGON
+	bool "QEMU Hexagon Virtual Machine"
+	depends on SOC_QEMU_HEXAGON_VIRT
+	help
+	  Enable support for QEMU Hexagon Virtual Machine
