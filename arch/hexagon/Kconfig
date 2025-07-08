@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+
+config ARCH
+	string
+	default "hexagon"
+
+config HEXAGON_VM
+	bool
+	default y
+	help
+	  Hexagon Virtual Machine support
+
+config HEXAGON_HW_THREADS
+	int "Number of hardware threads"
+	default 1
+	range 1 6
+	help
+	  Number of hardware threads supported by the Hexagon core
+
+menu "Hexagon Options"
+
+config HEXAGON_VM_VERSION
+	hex "Hexagon VM version"
+	default 0x1
+	help
+	  Version of Hexagon VM interface to use
+
+endmenu
+
+source "arch/hexagon/core/Kconfig"

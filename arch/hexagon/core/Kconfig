@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+
+config CPU_HAS_TLS
+	bool
+	help
+	  This option is enabled when the CPU has hardware thread local storage.
+
+config HEXAGON_EXCEPTION_DEBUG
+	bool "Hexagon exception debugging"
+	help
+	  Enable debugging of Hexagon exceptions and events
+
+config NUM_IRQS
+	int

@@ -160,6 +160,24 @@ config ARCH_POSIX
 	help
 	  POSIX (native) architecture
 
+config HEXAGON
+	bool
+	select ARCH_IS_SET
+	select ATOMIC_OPERATIONS_BUILTIN
+	select ARCH_HAS_CUSTOM_SWAP_TO_MAIN
+	select ARCH_HAS_CUSTOM_BUSY_WAIT
+	select ARCH_HAS_THREAD_ABORT
+	select ARCH_HAS_THREAD_LOCAL_STORAGE
+	select ARCH_HAS_GDBSTUB
+	select ARCH_HAS_STACK_PROTECTION
+	select ARCH_SUPPORTS_COREDUMP
+	select ARCH_SUPPORTS_COREDUMP_THREADS
+	select USE_SWITCH
+	select USE_SWITCH_SUPPORTED
+	select HAS_DTS
+	help
+	  Qualcomm Hexagon DSP architecture
+
 config RX
 	bool
 	select ARCH_IS_SET
@@ -230,7 +248,7 @@ config SRAM_BASE_ADDRESS
 	  /chosen/zephyr,sram in devicetree. The user should generally avoid
 	  changing it via menuconfig or in configuration files.
 
-if ARC || ARM || ARM64 || X86 || RISCV || RX
+if ARC || ARM || ARM64 || X86 || RISCV || RX || HEXAGON
 
 # Workaround for not being able to have commas in macro arguments
 DT_CHOSEN_Z_FLASH := zephyr,flash
@@ -253,7 +271,7 @@ config FLASH_BASE_ADDRESS
 	  normally set by the board's defconfig file and the user should generally
 	  avoid modifying it via the menu configuration.
 
-endif # ARM || ARM64 || ARC || X86 || RISCV || RX
+endif # ARM || ARM64 || ARC || X86 || RISCV || RX || HEXAGON
 
 if ARCH_HAS_TRUSTED_EXECUTION
 
