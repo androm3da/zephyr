@@ -60,6 +60,7 @@ schema;platform-schema:
           "arc",
           "arm",
           "arm64",
+          "hexagon",
           "mips",
           "nios2",
           "posix",
