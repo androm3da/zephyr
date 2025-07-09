@@ -14,7 +14,7 @@ zephyr_library_sources_ifdef(CONFIG_HEXAGON_VM hvm_event_vectors.S)
 zephyr_library_sources_ifdef(CONFIG_HEXAGON_VM vmsetie_cached.c)
 zephyr_library_sources_ifndef(CONFIG_HEXAGON_VM bare_event_vectors.S)
 zephyr_library_sources_ifdef(CONFIG_HEXAGON_VM event_vectors.S)
-zephyr_library_sources_ifndef(CONFIG_HEXAGON_VM reset.S)
+zephyr_library_sources_ifndef(CONFIG_HEXAGON_VM bare_reset.S)
 
 zephyr_library_sources_ifdef(CONFIG_HEXAGON_VM hvm_event_vectors.S)
 zephyr_library_sources_ifdef(CONFIG_HEXAGON_VM vmsetie_cached.c)

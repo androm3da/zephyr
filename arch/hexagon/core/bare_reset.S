@@ -3,7 +3,6 @@
 
 #include <zephyr/toolchain.h>
 #include <zephyr/linker/sections.h>
-#include <zephyr/arch/hexagon/vm_ops.h>
 
 GTEXT(__start)
 GTEXT(__reset_handler)
@@ -11,33 +10,21 @@ GTEXT(__reset_handler)
 /* Reset vector - must be aligned */
 SECTION_FUNC(reset, __start)
 	jump __reset_handler
-	nop
-	nop
-	nop
+	jump ##_fatal_error
 
 /* Main reset handler */
 SECTION_FUNC(TEXT, __reset_handler)
 	/* Disable interrupts */
 	r0 = #0
-	trap0(#HEXAGON_VM_vmsetie)
-
-	/* Get VM version for compatibility check */
-	r0 = #CONFIG_HEXAGON_VM_VERSION
-	trap0(#HEXAGON_VM_vmversion)
-	p0 = cmp.eq(r0, #CONFIG_HEXAGON_VM_VERSION)
-	if (!p0) jump #_vm_version_error
 
 	/* Set up initial stack pointer */
-	r29 = ##(_interrupt_stack + CONFIG_ISR_STACK_SIZE)
+	r29 = ##_interrupt_stack_end
 
 	/* Clear frame pointer */
 	r30 = #0
 
 	/* Set event vector base */
-	r0 = ##_event_vector_table
-	trap0(#HEXAGON_VM_vmsetvec)
-	p0 = cmp.eq(r0, #0)
-	if (!p0) jump #_vmsetvec_error
+	r0 = ##__start
 
 	/* Initialize BSS section */
 	r0 = ##__bss_start
@@ -79,14 +66,6 @@ _data_done:
 	/* Should never reach here */
 _hang:
 	jump #_hang
-
-_vm_version_error:
-	r0 = #1
-	jump #_fatal_error
-
-_vmsetvec_error:
-	r0 = #2
-	jump #_fatal_error
 
 _fatal_error:
 	/* r0 contains error code */

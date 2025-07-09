@@ -10,7 +10,7 @@ GTEXT(_general_exception_handler)
 GTEXT(_trap0_handler)
 GTEXT(_interrupt_handler)
 
-/* Event vector table - must be 64-byte aligned */
+/* Event vector table */
 SECTION_FUNC(event_vectors, __start)
 	.align 64
 
@@ -47,8 +47,8 @@ SECTION_FUNC(TEXT, _general_exception_handler)
 
 SECTION_FUNC(TEXT, _trap0_handler)
 	/* For now, just return */
-	trap1(#1)
+	trap1(#0x1)  /* vmrte */
 
 SECTION_FUNC(TEXT, _interrupt_handler)
 	/* For now, just return */
-	trap1(#1)
+	trap1(#0x1)  /* vmrte */
