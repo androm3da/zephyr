@@ -40,7 +40,7 @@ elseif("${ARCH}" STREQUAL "riscv")
     set(triple riscv32-unknown-elf)
   endif()
 elseif("${ARCH}" STREQUAL "hexagon")
-  set(triple hexagon-unknown-linux-musl)
+  set(triple hexagon-unknown-none-elf)
 endif()
 
 if(DEFINED triple)

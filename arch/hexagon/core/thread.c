@@ -29,3 +29,14 @@ size_t arch_k_thread_stack_size(k_thread_stack_t *stack)
 {
 	return 0; /* Stub */
 }
+
+void arch_switch_to_main_thread(struct k_thread *main_thread, k_thread_stack_t *stack,
+				k_thread_entry_t _main)
+{
+	/* Set up the main thread as current thread */
+	_current = main_thread;
+
+	/* For now, just call the main function directly */
+	/* TODO: Proper context setup for Hexagon VM */
+	_main(NULL, NULL, NULL);
+}

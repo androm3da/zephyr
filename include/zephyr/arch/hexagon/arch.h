@@ -9,6 +9,7 @@
 #include <zephyr/arch/hexagon/exception.h>
 #include <zephyr/arch/common/sys_bitops.h>
 #include <zephyr/arch/common/ffs.h>
+#include <zephyr/arch/common/sys_io.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/kernel/mm.h>
 
@@ -57,26 +58,40 @@ static inline void arch_kernel_init(void)
 /* IRQ lock/unlock functions */
 static inline unsigned int arch_irq_lock(void)
 {
-	unsigned int key;
+	register uint32_t r0 __asm__("r0");
 
-	__asm__ volatile("r1 = vmgetie()\n"
-			 "vmsetie(r0)\n"
-			 "r0 = r1\n"
-			 : "=r"(key)
-			 :
-			 : "r1", "memory");
+	/* Get current interrupt enable state via trap0 */
+	__asm__ volatile("trap0(#0x4)" : "=r"(r0) : : "memory", "p0", "p1", "p2", "p3");
 
-	return key;
+	/* Disable interrupts via trap0 */
+	register uint32_t r1 __asm__("r0") = 0;
+	__asm__ volatile("trap0(#0x3)" : "+r"(r1) : : "memory", "p0", "p1", "p2", "p3");
+
+	return r0;
 }
 
 static inline void arch_irq_unlock(unsigned int key)
 {
-	__asm__ volatile("vmsetie(r0)\n" : : "r"(key) : "memory");
+	register uint32_t r0 __asm__("r0") = key;
+	__asm__ volatile("trap0(#0x3)" : "+r"(r0) : : "memory", "p0", "p1", "p2", "p3");
 }
 
 static inline bool arch_irq_unlocked(unsigned int key)
 {
 	return (key & 1) != 0;
+}
+
+/* Cycle count functions */
+static inline uint32_t arch_k_cycle_get_32(void)
+{
+	/* TODO: Implement proper cycle counter for Hexagon */
+	return 0;
+}
+
+static inline uint64_t arch_k_cycle_get_64(void)
+{
+	/* TODO: Implement proper cycle counter for Hexagon */
+	return 0;
 }
 
 /* No-op instruction */

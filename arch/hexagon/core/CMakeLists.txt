@@ -8,9 +8,11 @@ zephyr_library_sources(
   thread.c
   cpu_idle.c
   fatal.c
+  swap.c
 )
+
+zephyr_library_sources_ifdef(CONFIG_HEXAGON_VM event_vectors.S)
+zephyr_library_sources_ifndef(CONFIG_HEXAGON_VM reset.S)
 
 zephyr_library_sources_ifdef(CONFIG_GEN_SW_ISR_TABLE isr_tables.c)
 zephyr_library_sources_ifdef(CONFIG_IRQ_OFFLOAD irq_offload.c)
-
-add_subdirectory(offsets)

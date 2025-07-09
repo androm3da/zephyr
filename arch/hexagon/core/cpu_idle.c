@@ -6,8 +6,7 @@
 
 void arch_cpu_idle(void)
 {
-	/* Use Hexagon pause instruction with maximum delay */
-	__asm__ volatile("pause(#255)" ::: "memory");
+	__asm__ volatile("wait(r0)" ::: "memory");
 }
 
 void arch_cpu_atomic_idle(unsigned int key)
