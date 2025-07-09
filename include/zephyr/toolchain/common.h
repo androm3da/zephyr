@@ -85,9 +85,11 @@
     #define   ALIGN(x)    .align    x
   #elif defined(CONFIG_SPARC)
     #define   ALIGN(x)    .align    x
-  #else
-    #error Architecture unsupported
-  #endif
+#elif defined(CONFIG_HEXAGON)
+#define ALIGN(x) .balign x
+#else
+#error Architecture unsupported
+#endif
 
 #endif /* defined(_ASMLANGUAGE) && !defined(_LINKER) */
 
@@ -127,13 +129,17 @@
 
     #define PERFOPT_ALIGN .align  4
 
-  #else
+#elif defined(CONFIG_HEXAGON)
 
-    #error Architecture unsupported
+#define PERFOPT_ALIGN .balign 4
 
-  #endif
+#else
 
-  #define GC_SECTION(sym) SECTION .text.##sym, "ax"
+#error Architecture unsupported
+
+#endif
+
+#define GC_SECTION(sym) SECTION.text.##sym, "ax"
 
 #endif /* _ASMLANGUAGE */
 

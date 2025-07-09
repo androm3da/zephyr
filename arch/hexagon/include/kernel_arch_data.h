@@ -14,18 +14,13 @@
 #include <zephyr/types.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/sys/dlist.h>
+#include <zephyr/arch/hexagon/thread.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Hexagon-specific thread structure additions */
-struct _thread_arch {
-	uint32_t swap_return_value;
-	uint32_t vm_event_info[4]; /* g0-g3 for event handling */
-};
-
-typedef struct _thread_arch _thread_arch_t;
+/* Additional kernel arch data if needed */
 
 #ifdef __cplusplus
 }
