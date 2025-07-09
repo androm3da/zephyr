@@ -40,26 +40,6 @@ _bss_loop:
 	if (p0) jump #_bss_loop
 
 _bss_done:
-	/* Copy initialized data from ROM to RAM if XIP */
-#ifdef CONFIG_XIP
-	r0 = ##__data_region_load_start
-	r1 = ##__data_region_start
-	r2 = ##__data_region_end
-
-	p0 = cmp.eq(r0, r1)
-	if (p0) jump #_data_done
-	p0 = cmp.gtu(r2, r1)
-	if (!p0) jump #_data_done
-
-_data_loop:
-	r3 = memb(r0++#1)
-	memb(r1++#1) = r3
-	p0 = cmp.ltu(r1, r2)
-	if (p0) jump #_data_loop
-
-_data_done:
-#endif
-
 	/* Jump to C initialization */
 	call ##z_cstart
 

@@ -3,35 +3,19 @@
 #include <zephyr/linker/linker-defs.h>
 #include <zephyr/linker/linker-tool.h>
 
-/* Define memory regions based on OpenISA RISC-V pattern */
-#ifdef CONFIG_XIP
-#define ROMABLE_REGION              ROM
-#define RAMABLE_REGION              RAM
-#else
 #define ROMABLE_REGION              RAM
 #define RAMABLE_REGION              RAM
-#endif
 
 /* Memory configuration - simplified for Hexagon */
-#ifdef CONFIG_XIP
-#define ROM_BASE CONFIG_FLASH_BASE_ADDRESS
-#define ROM_SIZE (CONFIG_FLASH_SIZE * 1024)
-#else
 #define ROM_BASE CONFIG_SRAM_BASE_ADDRESS
 #define ROM_SIZE (CONFIG_SRAM_SIZE * 1024)
-#endif
 
 #define RAM_BASE CONFIG_SRAM_BASE_ADDRESS
 #define RAM_SIZE (CONFIG_SRAM_SIZE * 1024)
 
 MEMORY
 {
-#ifdef CONFIG_XIP
-    ROM (rx)      : ORIGIN = ROM_BASE,    LENGTH = ROM_SIZE
     RAM (rwx)     : ORIGIN = RAM_BASE,    LENGTH = RAM_SIZE
-#else
-    RAM (rwx)     : ORIGIN = RAM_BASE,    LENGTH = RAM_SIZE
-#endif
     IDT_LIST (wx) : ORIGIN = 0xFFFFF7FF, LENGTH = 2K
 }
 
@@ -53,6 +37,20 @@ SECTIONS
 
     GROUP_START(ROMABLE_REGION)
     __rom_region_start = .;
+
+    /* Reset vector must be at the beginning */
+    SECTION_PROLOGUE(.reset.__start,,)
+    {
+        . = ALIGN(4);
+        KEEP(*(.reset.__start))
+    } GROUP_LINK_IN(ROMABLE_REGION)
+
+    /* Event vector table */
+    SECTION_PROLOGUE(.event_vectors._event_vector_table,,)
+    {
+        . = ALIGN(4);
+        KEEP(*(.event_vectors._event_vector_table))
+    } GROUP_LINK_IN(ROMABLE_REGION)
 
     SECTION_PROLOGUE(_TEXT_SECTION_NAME,,)
     {
