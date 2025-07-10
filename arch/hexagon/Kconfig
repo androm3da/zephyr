@@ -24,7 +24,7 @@ menu "Hexagon Options"
 
 config HEXAGON_VM_VERSION
 	hex "Hexagon VM version"
-	default 0x1
+	default 0x0700
 	help
 	  Version of Hexagon VM interface to use
 

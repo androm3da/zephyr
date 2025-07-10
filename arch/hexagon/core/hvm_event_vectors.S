@@ -7,42 +7,65 @@
 
 GTEXT(__start)
 GTEXT(__reset_handler)
-GTEXT(_event_vector_table)
 GTEXT(_machine_check_handler)
 GTEXT(_general_exception_handler)
 GTEXT(_trap0_handler)
 GTEXT(_interrupt_handler)
 
 /* Reset vector - must be aligned */
-SECTION_FUNC(TEXT, __start)
-    jump __reset_handler
-    nop
-    nop
-    nop
+SECTION_FUNC(reset, __start)
+	.align 2
+	/* Event 0: Reserved */
+	jump #__reset_handler
+	/* Event 1: Machine check */
+	jump #_machine_check_handler
+	/* Event 2: General exception */
+	jump #_general_exception_handler
+	/* Event 3: Reserved */
+	jump #_unhandled_event
+	/* Event 4: Reserved */
+	jump #_unhandled_event
+	/* Event 5: trap0 */
+	jump #_trap0_handler
+	/* Event 6: Reserved */
+	jump #_unhandled_event
+	/* Event 7: Interrupt */
+	jump #_interrupt_handler
+
 
 /* Main reset handler for VM configuration */
 SECTION_FUNC(TEXT, __reset_handler)
+    /* Set event vector base */
+    r0 = ##__start
+    trap1(#HEXAGON_VM_vmsetvec)
+    p0 = cmp.eq(r0, #0)
+    if (!p0) jump #_vmsetvec_error
+
     /* Disable interrupts */
     r0 = #0
-    trap0(#HEXAGON_VM_vmsetie)
+    trap1(#HEXAGON_VM_vmsetie)
 
     /* Get VM version for compatibility check */
     r0 = #CONFIG_HEXAGON_VM_VERSION
-    trap0(#HEXAGON_VM_vmversion)
+    trap1(#HEXAGON_VM_vmversion)
     p0 = cmp.eq(r0, #CONFIG_HEXAGON_VM_VERSION)
     if (!p0) jump #_vm_version_error
+
+    /* Set up MMU mappings for Zephyr image */
+    /* Map 0xc0000000 to 0xc0000000 + 64MB */
+    r0 = #0xc0000000      /* Virtual address */
+    r1 = #0xc0000000      /* Physical address */
+    r2 = #0x4000000       /* Size: 64MB */
+    r3 = #0x3F            /* PTE: valid, read, write, execute, cache */
+    trap1(#HEXAGON_VM_vmnewmap)
+    p0 = cmp.eq(r0, #0)
+    if (!p0) jump #_mmu_error
 
     /* Set up initial stack pointer */
     r29 = ##_interrupt_stack_end
 
     /* Clear frame pointer */
     r30 = #0
-
-    /* Set event vector base */
-    r0 = ##_event_vector_table
-    trap0(#HEXAGON_VM_vmsetvec)
-    p0 = cmp.eq(r0, #0)
-    if (!p0) jump #_vmsetvec_error
 
     /* Initialize BSS section */
     r0 = ##__bss_start
@@ -72,27 +95,12 @@ _vmsetvec_error:
     r0 = #2
     jump #_fatal_error
 
+_mmu_error:
+    r0 = #3
+    jump #_fatal_error
+
 /* Event vector table - must be 32-bit aligned */
 SECTION_FUNC(event_vectors, _event_vector_table)
-	.align 2
-
-	/* Event 0: Reserved */
-	jump ##_unhandled_event
-	/* Event 1: Machine check */
-	jump ##_machine_check_handler
-	/* Event 2: General exception */
-	jump ##_general_exception_handler
-	/* Event 3: Reserved */
-	jump ##_unhandled_event
-	/* Event 4: Reserved */
-	jump ##_unhandled_event
-	/* Event 5: trap0 */
-	jump ##_trap0_handler
-	/* Event 6: Reserved */
-	jump ##_unhandled_event
-	/* Event 7: Interrupt */
-	jump ##_interrupt_handler
-
 /* Basic handlers for early boot */
 SECTION_FUNC(TEXT, _unhandled_event)
 	/* Save minimal context */
@@ -109,14 +117,15 @@ SECTION_FUNC(TEXT, _general_exception_handler)
 
 SECTION_FUNC(TEXT, _trap0_handler)
 	/* For now, just return */
-	trap1(#0x1)  /* vmrte */
+	trap1(#HEXAGON_VM_vmrte)
 
 SECTION_FUNC(TEXT, _interrupt_handler)
 	/* For now, just return */
-	trap1(#0x1)  /* vmrte */
+	trap1(#HEXAGON_VM_vmrte)
 
 _fatal_error:
 	/* r0 contains error code */
+	stop(r0)
 	jump #_hang
 
 _hang:
