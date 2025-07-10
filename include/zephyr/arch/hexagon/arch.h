@@ -60,12 +60,12 @@ static inline unsigned int arch_irq_lock(void)
 {
 	register uint32_t r0 __asm__("r0");
 
-	/* Get current interrupt enable state via trap0 */
-	__asm__ volatile("trap0(#0x4)" : "=r"(r0) : : "memory", "p0", "p1", "p2", "p3");
+	/* Get current interrupt enable state via vmgetie */
+	__asm__ volatile("trap1(#0x4)" : "=r"(r0) : : "memory", "p0", "p1", "p2", "p3");
 
-	/* Disable interrupts via trap0 */
+	/* Disable interrupts via vmsetie */
 	register uint32_t r1 __asm__("r0") = 0;
-	__asm__ volatile("trap0(#0x3)" : "+r"(r1) : : "memory", "p0", "p1", "p2", "p3");
+	__asm__ volatile("trap1(#0x3)" : "+r"(r1) : : "memory", "p0", "p1", "p2", "p3");
 
 	return r0;
 }
@@ -73,7 +73,7 @@ static inline unsigned int arch_irq_lock(void)
 static inline void arch_irq_unlock(unsigned int key)
 {
 	register uint32_t r0 __asm__("r0") = key;
-	__asm__ volatile("trap0(#0x3)" : "+r"(r0) : : "memory", "p0", "p1", "p2", "p3");
+	__asm__ volatile("trap1(#0x3)" : "+r"(r0) : : "memory", "p0", "p1", "p2", "p3");
 }
 
 static inline bool arch_irq_unlocked(unsigned int key)
@@ -84,14 +84,18 @@ static inline bool arch_irq_unlocked(unsigned int key)
 /* Cycle count functions */
 static inline uint32_t arch_k_cycle_get_32(void)
 {
-	/* TODO: Implement proper cycle counter for Hexagon */
-	return 0;
+	uint32_t val;
+	__asm__ __volatile__("%0 = pcyclelo\n" : "=r"(val));
+
+	return val;
 }
 
 static inline uint64_t arch_k_cycle_get_64(void)
 {
-	/* TODO: Implement proper cycle counter for Hexagon */
-	return 0;
+	uint64_t val;
+	__asm__ __volatile__("%0 = pcycle\n" : "=r"(val));
+
+	return val;
 }
 
 /* No-op instruction */
