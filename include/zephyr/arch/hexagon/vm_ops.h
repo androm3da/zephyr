@@ -60,7 +60,7 @@ static inline uint32_t hexagon_vm_vmgetie(void)
 
 static inline void hexagon_vm_vmrte(void)
 {
-	__asm__ volatile("trap0(#0x1)" : : : "memory");
+	__asm__ volatile("trap1(#0x1)" : : : "memory");
 }
 
 #endif /* _ASMLANGUAGE */

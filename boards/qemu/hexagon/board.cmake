@@ -9,6 +9,7 @@ set(QEMU_CPU_TYPE_${ARCH} hexagon)
 set(QEMU_FLAGS_${ARCH}
   -machine virt
   -nographic
+  -d in_asm
   )
 
 board_set_debugger_ifnset(qemu)

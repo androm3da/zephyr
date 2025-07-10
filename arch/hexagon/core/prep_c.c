@@ -17,6 +17,7 @@ void z_hexagon_fatal_error(unsigned int reason)
 	/* Print error if console is available */
 	printk("FATAL ERROR: Early boot failure, reason=%d\n", reason);
 #endif
+	__asm__ volatile("stop(r0)" ::: "memory");
 	/* Hang */
 	while (1) {
 		__asm__ volatile("pause(#255)" ::: "memory");

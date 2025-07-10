@@ -47,9 +47,10 @@
 	};
 */
 
-	uart0: uart@9000000 {
-		compatible = "ns16550";
-		reg = <0x9000000 0x1000>;
+	uart0: uart@10000000 {
+		compatible = "pl011";
+		reg = <0x10000000 0x1000>;
+//		interrupts = <15>;
 		clock-frequency = <1843200>;
 		reg-shift = <0>;
 		status = "okay";
