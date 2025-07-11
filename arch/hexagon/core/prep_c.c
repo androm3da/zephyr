@@ -7,22 +7,8 @@
 
 extern FUNC_NORETURN void z_cstart(void);
 
-/* Early fatal error handler */
-void z_hexagon_fatal_error(unsigned int reason)
-{
-#if 0
-	/* Disable interrupts */
-	hexagon_vm_vmsetie(0);
-
-	/* Print error if console is available */
-	printk("FATAL ERROR: Early boot failure, reason=%d\n", reason);
-#endif
-	__asm__ volatile("stop(r0)" ::: "memory");
-	/* Hang */
-	while (1) {
-		__asm__ volatile("pause(#255)" ::: "memory");
-	}
-}
+/* Forward declaration for fatal error handler */
+void z_hexagon_fatal_error(unsigned int reason);
 
 /* Architecture-specific early initialization */
 void z_hexagon_early_init(void)

@@ -11,6 +11,9 @@ zephyr_library_sources(
   thread_abort.c
   switch.S
   thread_entry.S
+  irq_manage.c
+  intc.c
+  event_handlers.S
 )
 
 
