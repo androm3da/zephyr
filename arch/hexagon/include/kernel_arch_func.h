@@ -9,6 +9,7 @@
 #include <zephyr/kernel_structs.h>
 #include <zephyr/types.h>
 #include <zephyr/sys/util.h>
+#include <zephyr/toolchain.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,14 +17,13 @@ extern "C" {
 
 /* Thread context switching */
 extern void arch_switch(void *switch_to, void **switched_from);
-extern unsigned int arch_swap(unsigned int key);
 
 /* Thread creation */
 extern void arch_new_thread(struct k_thread *thread, k_thread_stack_t *stack, char *stack_ptr,
 			    k_thread_entry_t entry, void *p1, void *p2, void *p3);
 
 /* Thread abortion */
-extern void arch_thread_return_value_set(struct k_thread *thread, unsigned int value);
+/* arch_thread_return_value_set is only needed for !CONFIG_USE_SWITCH */
 
 /* Stack pointer manipulation */
 extern char *arch_k_thread_stack_buffer(k_thread_stack_t *stack);
