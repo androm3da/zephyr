@@ -129,8 +129,7 @@ void z_arch_except(unsigned int reason)
 
 void arch_system_halt(unsigned int reason)
 {
-	/* Use Hexagon stop instruction to halt the system */
-	__asm__ volatile("stop(r0)" : : "r"(reason) : "r0", "memory");
+	__asm__ volatile("stop(r0)" : : [reason] "r"(reason) : "r0", "memory");
 
 	/* Should never reach here, but include infinite loop as fallback */
 	while (1) {
