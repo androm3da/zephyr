@@ -10,7 +10,11 @@ zephyr_library_sources(
   fatal.c
   thread_abort.c
   switch.S
+  thread_support.c
+  thread_entry.S
 )
+
+zephyr_library_sources_ifdef(CONFIG_HEXAGON_ENHANCED_CONTEXT_SWITCH switch_enhanced.S)
 
 zephyr_library_sources_ifdef(CONFIG_HEXAGON_VM hvm_event_vectors.S)
 zephyr_library_sources_ifndef(CONFIG_HEXAGON_VM bare_event_vectors.S)
