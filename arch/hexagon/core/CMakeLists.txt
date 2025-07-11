@@ -12,6 +12,9 @@ zephyr_library_sources(
   switch.S
   thread_support.c
   thread_entry.S
+  irq_manage.c
+  intc.c
+  event_handlers.S
 )
 
 zephyr_library_sources_ifdef(CONFIG_HEXAGON_ENHANCED_CONTEXT_SWITCH switch_enhanced.S)
