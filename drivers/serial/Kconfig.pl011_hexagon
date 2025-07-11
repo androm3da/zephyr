@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+
+config UART_PL011_HEXAGON
+	bool "ARM PL011 UART driver for Hexagon"
+	depends on HEXAGON
+	select SERIAL_HAS_DRIVER
+	help
+	  Enable the ARM PL011 UART driver for Hexagon platforms.
+	  This is used in QEMU's virt machine.
+
+	  Note: This driver is currently in compatibility mode with
+	  semihosting console output.
