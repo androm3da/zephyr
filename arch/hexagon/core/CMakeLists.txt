@@ -10,7 +10,9 @@ zephyr_library_sources(
   fatal.c
   thread_abort.c
   switch.S
+  thread_entry.S
 )
+
 
 zephyr_library_sources_ifdef(CONFIG_HEXAGON_VM hvm_event_vectors.S)
 zephyr_library_sources_ifdef(CONFIG_HEXAGON_VM vmsetie_cached.c)
