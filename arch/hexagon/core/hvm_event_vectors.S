@@ -116,7 +116,20 @@ SECTION_FUNC(TEXT, _general_exception_handler)
 	jump ##z_hexagon_fatal_error
 
 SECTION_FUNC(TEXT, _trap0_handler)
-	/* For now, just return */
+	/* Basic system call handler */
+	/* r0 contains syscall number, r1-r3 contain arguments */
+	
+	/* Check syscall number */
+	p0 = cmp.eq(r0, #3)  /* SYS_write */
+	if (p0) jump #_handle_write
+	
+	/* For unhandled system calls, return 0 */
+	r0 = #0
+	trap1(#HEXAGON_VM_vmrte)
+
+_handle_write:
+	/* For write syscall, just return the count (r2) to simulate success */
+	r0 = r2  /* Return bytes written = requested count */
 	trap1(#HEXAGON_VM_vmrte)
 
 SECTION_FUNC(TEXT, _interrupt_handler)

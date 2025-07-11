@@ -8,6 +8,8 @@ zephyr_library_sources(
   thread.c
   cpu_idle.c
   fatal.c
+  thread_abort.c
+  switch.S
 )
 
 zephyr_library_sources_ifdef(CONFIG_HEXAGON_VM hvm_event_vectors.S)
