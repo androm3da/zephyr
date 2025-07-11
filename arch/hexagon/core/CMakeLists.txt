@@ -23,3 +23,7 @@ zephyr_library_sources_ifndef(CONFIG_HEXAGON_VM bare_event_vectors.S)
 
 zephyr_library_sources_ifdef(CONFIG_IRQ_OFFLOAD irq_offload.c)
 zephyr_library_sources_ifdef(CONFIG_SEMIHOST semihost.c)
+
+zephyr_library_sources(mem_manage.c)
+
+# Atomic operations are header-only, bit operations are built-in
