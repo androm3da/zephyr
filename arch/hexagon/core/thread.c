@@ -53,6 +53,8 @@ void arch_new_thread(struct k_thread *thread, k_thread_stack_t *stack, char *sta
 	thread->arch.flags = 0;
 	memset(thread->arch.vm_event_info, 0, sizeof(thread->arch.vm_event_info));
 
+	/* TODO: Add enhanced thread features when structure is updated */
+
 	/* Backward compatibility: also initialize callee_saved structure for CONFIG_USE_SWITCH */
 	memset(&thread->callee_saved, 0, sizeof(thread->callee_saved));
 	thread->callee_saved.r30_sp = stack_end;

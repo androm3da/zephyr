@@ -14,11 +14,19 @@ config HEXAGON_VM
 	  memory management.
 
 config HEXAGON_HW_THREADS
-	int "Number of hardware threads"
-	default 1
-	range 1 6
+	bool "Enable hardware thread support"
+	default n
 	help
-	  Number of hardware threads supported by the Hexagon core
+	  Enable support for multiple hardware threads using Hexagon VM operations.
+	  This allows threads to be assigned to specific virtual processors.
+
+config HEXAGON_HW_THREADS_MAX
+	int "Maximum number of hardware threads"
+	default 4
+	range 1 6
+	depends on HEXAGON_HW_THREADS
+	help
+	  Maximum number of hardware threads supported by the Hexagon core
 
 menu "Hexagon Options"
 

@@ -27,3 +27,7 @@ zephyr_library_sources_ifdef(CONFIG_SEMIHOST semihost.c)
 zephyr_library_sources(mem_manage.c)
 
 # Atomic operations are header-only, bit operations are built-in
+
+# Enable TLS support - enhanced thread structure is now integrated
+zephyr_library_sources_ifdef(CONFIG_THREAD_LOCAL_STORAGE tls.c)
+# zephyr_library_sources_ifdef(CONFIG_HEXAGON_HW_THREADS hw_threads.c)
