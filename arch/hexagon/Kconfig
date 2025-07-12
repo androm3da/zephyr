@@ -42,6 +42,36 @@ config HEXAGON_QEMU_SUPPORT
 	help
 	  Enable enhanced QEMU support with debugging and networking features.
 
+config HEXAGON_HVX
+	bool "Hexagon Vector Extensions (HVX) support"
+	default n
+	help
+	  Enable support for Hexagon Vector Extensions (HVX). HVX provides
+	  SIMD vector processing capabilities with 32 vector registers and
+	  vector predicate registers. This feature requires hardware support
+	  and increases memory usage for thread context storage.
+
+if HEXAGON_HVX
+
+config HEXAGON_HVX_128B
+	bool "Use 128-byte HVX vectors"
+	default y
+	help
+	  Use 128-byte HVX vectors instead of 64-byte vectors. This provides
+	  more vector processing capability but increases memory usage for
+	  context storage. The actual vector size depends on hardware support.
+
+config HEXAGON_HVX_MAX_CONTEXTS
+	int "Maximum number of HVX contexts"
+	default 4
+	range 1 8
+	help
+	  Maximum number of HVX contexts that can be allocated simultaneously.
+	  Set this to correspond with the target capability.
+
+
+endif # HEXAGON_HVX
+
 endmenu
 
 source "arch/hexagon/core/Kconfig"

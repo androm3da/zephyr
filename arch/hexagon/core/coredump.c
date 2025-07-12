@@ -8,6 +8,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/debug/coredump.h>
 #include <zephyr/arch/hexagon/exception.h>
+#include <hvx.h>
 
 #define ARCH_HDR_VER 1
 
@@ -68,6 +69,70 @@ struct hexagon_arch_block {
  * inside function. So do it here.
  */
 static struct hexagon_arch_block arch_blk;
+
+#ifdef CONFIG_HEXAGON_HVX
+/**
+ * @brief Dump HVX vector registers to coredump
+ *
+ * This function saves HVX vector registers if the current thread
+ * has an active HVX context.
+ */
+void arch_coredump_hvx_dump(void)
+{
+	struct hvx_context *hvx_ctx;
+	struct coredump_arch_hdr_t hvx_hdr;
+
+	/* Check if HVX is available */
+	if (!hvx_is_available()) {
+		return;
+	}
+
+	/* Get HVX context for current thread */
+	hvx_ctx = hvx_get_current_context();
+	if (hvx_ctx == NULL || !hvx_ctx->context_valid) {
+		return; /* No HVX context or invalid context */
+	}
+
+	/* Save current HVX state if context is dirty */
+	if (hvx_ctx->context_dirty) {
+		hvx_context_save();
+	}
+
+	/* Create header for HVX register block */
+	hvx_hdr.id = 'H'; /* Custom HVX header ID */
+	hvx_hdr.hdr_version = 1;
+	hvx_hdr.num_bytes = sizeof(struct hvx_vectors);
+
+	/* Output HVX registers */
+	coredump_buffer_output((uint8_t *)&hvx_hdr, sizeof(hvx_hdr));
+	coredump_buffer_output((uint8_t *)hvx_ctx->vregs, sizeof(struct hvx_vectors));
+
+	/* Also save HVX context information */
+	struct {
+		uint32_t context_num;
+		uint32_t generation;
+		uint32_t vector_size;
+		uint32_t context_valid;
+		uint32_t context_dirty;
+	} hvx_info = {
+		.context_num = hvx_ctx->context_num,
+		.generation = hvx_ctx->generation,
+		.vector_size = HVX_VECTOR_SIZE,
+		.context_valid = hvx_ctx->context_valid,
+		.context_dirty = hvx_ctx->context_dirty,
+	};
+
+	/* Create header for HVX context info */
+	struct coredump_arch_hdr_t hvx_info_hdr = {
+		.id = 'I', /* HVX Info header ID */
+		.hdr_version = 1,
+		.num_bytes = sizeof(hvx_info),
+	};
+
+	coredump_buffer_output((uint8_t *)&hvx_info_hdr, sizeof(hvx_info_hdr));
+	coredump_buffer_output((uint8_t *)&hvx_info, sizeof(hvx_info));
+}
+#endif /* CONFIG_HEXAGON_HVX */
 
 /**
  * @brief Dump Hexagon architecture-specific register information
@@ -139,6 +204,11 @@ void arch_coredump_info_dump(const struct arch_esf *esf)
 	/* Send for output */
 	coredump_buffer_output((uint8_t *)&hdr, sizeof(hdr));
 	coredump_buffer_output((uint8_t *)&arch_blk, sizeof(arch_blk));
+
+#ifdef CONFIG_HEXAGON_HVX
+	/* Dump HVX vector registers if available */
+	arch_coredump_hvx_dump();
+#endif
 }
 
 /**
@@ -187,3 +257,4 @@ void arch_coredump_priv_stack_dump(struct k_thread *thread)
 	ARG_UNUSED(thread);
 }
 #endif /* CONFIG_DEBUG_COREDUMP_DUMP_THREAD_PRIV_STACK */
+
