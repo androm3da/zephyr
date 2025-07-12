@@ -6,6 +6,10 @@
 
 #ifndef _ASMLANGUAGE
 
+/* Thread flags */
+#define HEXAGON_THREAD_FLAG_ABORT   0x01
+#define HEXAGON_THREAD_FLAG_FP_USED 0x02
+
 /* Hexagon thread context structure */
 struct hexagon_thread_context {
 	/* Callee-saved registers */
@@ -62,6 +66,13 @@ struct _thread_arch {
 
 	/* VM event info for compatibility with existing code */
 	uint32_t vm_event_info[4];
+
+	/* Phase 8: Enhanced thread features */
+	/* Hardware thread ID (-1 if not a hardware thread) */
+	int8_t hw_thread_id;
+
+	/* Thread-local storage pointer */
+	void *tls_ptr;
 };
 
 /* Stack frame for new threads */

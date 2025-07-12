@@ -29,3 +29,8 @@ zephyr_library_sources_ifdef(CONFIG_SEMIHOST semihost.c)
 zephyr_library_sources(mem_manage.c)
 
 # Atomic operations are header-only, bit operations are built-in
+
+# TODO: Enable when enhanced thread structure is fully integrated
+# zephyr_library_sources(tls.c)
+# zephyr_library_sources_ifdef(CONFIG_HEXAGON_HW_THREADS hw_threads.c)
+# zephyr_library_sources(thread_switch.c)
