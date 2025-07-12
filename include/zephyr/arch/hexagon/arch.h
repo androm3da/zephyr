@@ -13,6 +13,10 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/kernel/mm.h>
 
+#if defined(CONFIG_GDBSTUB)
+#include <zephyr/arch/hexagon/gdbstub.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
