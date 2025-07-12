@@ -19,6 +19,7 @@ static int qemu_hexagon_init(void)
 	printk("Hexagon VM support: %s\n", IS_ENABLED(CONFIG_HEXAGON_VM) ? "enabled" : "disabled");
 	printk("Hardware threads: %s\n",
 	       IS_ENABLED(CONFIG_HEXAGON_HW_THREADS) ? "enabled" : "disabled");
+	printk("HVX: %s\n", IS_ENABLED(CONFIG_HEXAGON_HVX) ? "enabled" : "disabled");
 	printk("Power management: %s\n", IS_ENABLED(CONFIG_PM) ? "enabled" : "disabled");
 
 	/* Any additional board-specific setup */
