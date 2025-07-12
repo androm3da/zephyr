@@ -4,5 +4,10 @@
 config BOARD_QEMU_HEXAGON
 	bool "QEMU Hexagon Virtual Machine"
 	depends on SOC_QEMU_HEXAGON_VIRT
+	select QEMU_TARGET
+	select ARCH_HAS_CUSTOM_BUSY_WAIT
+	select ARCH_HAS_THREAD_ABORT
+	select ARCH_HAS_THREAD_LOCAL_STORAGE if CPU_HAS_TLS
 	help
-	  Enable support for QEMU Hexagon Virtual Machine
+	  Enable support for QEMU Hexagon Virtual Machine.
+	  This board provides a complete Hexagon VM environment

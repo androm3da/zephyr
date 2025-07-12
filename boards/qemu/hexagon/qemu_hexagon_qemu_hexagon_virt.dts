@@ -17,42 +17,32 @@
 
 		cpu0: cpu@0 {
 			device_type = "cpu";
-			compatible = "qcom,hexagon";
+			compatible = "qcom,hexagon-v67";
 			reg = <0>;
+			clock-frequency = <1000000>;
+
+			/* Hexagon-specific CPU features */
+			hexagon,vm-support;
+			hexagon,hardware-threads = <4>;
+			hexagon,tls-support;
 		};
 	};
 
 	chosen {
 		zephyr,sram = &sram0;
-		//zephyr,flash = &flash0;
-		zephyr,console = &uart0;
+		zephyr,flash = &sram0;
 	};
 
+	/* Main system memory */
 	memory@80000000 {
 		device_type = "memory";
 		reg = <0x80000000 DT_SIZE_M(32)>;
 	};
 
+	/* SRAM for code and data */
 	sram0: memory@c0000000 {
 		device_type = "memory";
 		compatible = "mmio-sram";
 		reg = <0xc0000000 DT_SIZE_M(16)>;
-	};
-
-/*
-	flash0: flash@c0000000 {
-		device_type = "memory";
-		compatible = "soc-nv-flash";
-		reg = <0xc0000000 DT_SIZE_M(16)>;
-	};
-*/
-
-	uart0: uart@10000000 {
-		compatible = "pl011";
-		reg = <0x10000000 0x1000>;
-//		interrupts = <15>;
-		clock-frequency = <1843200>;
-		reg-shift = <0>;
-		status = "okay";
 	};
 };

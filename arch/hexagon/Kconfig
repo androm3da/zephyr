@@ -20,10 +20,12 @@ config HEXAGON
 	  Qualcomm Hexagon DSP architecture
 
 config HEXAGON_VM
-	bool
+	bool "Hexagon Virtual Machine support"
 	default y
 	help
-	  Hexagon Virtual Machine support
+	  Enable Hexagon Virtual Machine support. This provides VM
+	  instructions for interrupt control, timer operations, and
+	  memory management.
 
 config HEXAGON_HW_THREADS
 	bool "Enable hardware thread support"
@@ -47,6 +49,25 @@ config HEXAGON_VM_VERSION
 	default 0x0700
 	help
 	  Version of Hexagon VM interface to use
+
+config HEXAGON_PLATFORM_INTEGRATION
+	bool "Enable Hexagon platform integration features"
+	default y
+	help
+	  Enable comprehensive platform integration features for Hexagon
+	  including advanced debugging, power management, and testing support.
+
+config HEXAGON_QEMU_SUPPORT
+	bool "Enhanced QEMU support"
+	default y if QEMU_TARGET
+	help
+	  Enable enhanced QEMU support with debugging and networking features.
+
+config HEXAGON_COMPREHENSIVE_TESTING
+	bool "Comprehensive test suite support"
+	default y if HEXAGON_PLATFORM_INTEGRATION
+	help
+	  Enable support for running the complete Zephyr test suite on Hexagon.
 
 endmenu
 
