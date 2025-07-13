@@ -615,6 +615,7 @@ static inline int32_t hexagon_vm_intop_status(int32_t i)
 {
 	return hexagon_vm_intop(hvmi_status, i, 0, 0, 0);
 }
+
 #endif /* __ASSEMBLER__ */
 
 /*
