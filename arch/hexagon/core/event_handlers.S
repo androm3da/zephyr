@@ -7,7 +7,7 @@
 
 #include <zephyr/toolchain.h>
 #include <zephyr/linker/sections.h>
-#include <zephyr/arch/hexagon/vm_ops.h>
+#include <hexagon_vm.h>
 
 /* Event context structure offsets */
 #define EVENT_CTX_R0_R1     0x00

@@ -3,7 +3,7 @@
 
 #include <zephyr/toolchain.h>
 #include <zephyr/linker/sections.h>
-#include <zephyr/arch/hexagon/vm_ops.h>
+#include <hexagon_vm.h>
 
 GTEXT(__start)
 GTEXT(__reset_handler)
@@ -118,11 +118,11 @@ SECTION_FUNC(TEXT, _general_exception_handler)
 SECTION_FUNC(TEXT, _trap0_handler)
 	/* Basic system call handler */
 	/* r0 contains syscall number, r1-r3 contain arguments */
-	
+
 	/* Check syscall number */
 	p0 = cmp.eq(r0, #3)  /* SYS_write */
 	if (p0) jump #_handle_write
-	
+
 	/* For unhandled system calls, return 0 */
 	r0 = #0
 	trap1(#HEXAGON_VM_vmrte)

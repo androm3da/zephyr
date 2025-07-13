@@ -10,6 +10,7 @@
 #include <zephyr/sys/atomic.h>
 #include <zephyr/logging/log.h>
 #include <hvx.h>
+#include <hexagon_vm.h>
 
 LOG_MODULE_REGISTER(hvx, CONFIG_ARCH_LOG_LEVEL);
 

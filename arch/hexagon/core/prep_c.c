@@ -3,7 +3,7 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/arch/hexagon/arch.h>
-#include <zephyr/arch/hexagon/vm_ops.h>
+#include <hexagon_vm.h>
 
 extern FUNC_NORETURN void z_cstart(void);
 

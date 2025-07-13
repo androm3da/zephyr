@@ -13,6 +13,7 @@
 #include <zephyr/pm/pm.h>
 #include <zephyr/arch/hexagon/arch.h>
 #include <zephyr/arch/cpu.h>
+#include <hexagon_vm.h>
 
 #ifdef CONFIG_PM
 
@@ -48,7 +49,7 @@ void pm_state_set(enum pm_state state, uint8_t substate_id)
 		pm_context.int_enable = arch_irq_lock();
 
 		/* Enter wait state using VM operation */
-		__asm__ volatile("trap1(#0x10)" ::: "memory"); /* vmwait */
+		hexagon_vm_wait();
 
 		/* Restore interrupt state */
 		arch_irq_unlock(pm_context.int_enable);
@@ -59,7 +60,7 @@ void pm_state_set(enum pm_state state, uint8_t substate_id)
 		pm_context.int_enable = arch_irq_lock();
 
 		/* Prepare for deep sleep */
-		__asm__ volatile("trap1(#0x11)" ::: "memory"); /* vmdeepsleep */
+		hexagon_vm_yield(); /* Use yield for deep sleep state */
 
 		/* Restore context on wake */
 		arch_irq_unlock(pm_context.int_enable);

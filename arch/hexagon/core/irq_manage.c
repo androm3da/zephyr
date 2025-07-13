@@ -5,6 +5,7 @@
 #include <zephyr/irq.h>
 #include <zephyr/sw_isr_table.h>
 #include <errno.h>
+#include <hexagon_vm.h>
 
 /* Hexagon constants */
 #define ARCH_IRQ_COUNT                  64
@@ -116,13 +117,8 @@ void arch_irq_enable(unsigned int irq)
 		return;
 	}
 
-	/* Use vmintop to enable specific interrupt */
-	__asm__ volatile("r0 = #0\n\t" /* Op: enable */
-			 "r1 = %0\n\t" /* IRQ number */
-			 "trap1(#0x5)" /* vmintop */
-			 :
-			 : "r"(irq)
-			 : "r0", "r1", "memory");
+	/* Use interrupt controller abstraction */
+	hexagon_intc_enable(irq);
 }
 
 /* Disable an IRQ */
@@ -132,13 +128,8 @@ void arch_irq_disable(unsigned int irq)
 		return;
 	}
 
-	/* Use vmintop to disable specific interrupt */
-	__asm__ volatile("r0 = #1\n\t" /* Op: disable */
-			 "r1 = %0\n\t" /* IRQ number */
-			 "trap1(#0x5)" /* vmintop */
-			 :
-			 : "r"(irq)
-			 : "r0", "r1", "memory");
+	/* Use interrupt controller abstraction */
+	hexagon_intc_disable(irq);
 }
 
 /* Check if IRQ is enabled */
@@ -151,13 +142,7 @@ int arch_irq_is_enabled(unsigned int irq)
 	}
 
 	/* Use vmintop to query interrupt state */
-	__asm__ volatile("r0 = #2\n\t"     /* Op: query */
-			 "r1 = %1\n\t"     /* IRQ number */
-			 "trap1(#0x5)\n\t" /* vmintop */
-			 "%0 = r0"
-			 : "=r"(status)
-			 : "r"(irq)
-			 : "r0", "r1", "memory");
+	status = hexagon_vm_intop_status(irq);
 
 	return status & 1;
 }
@@ -193,14 +178,8 @@ void hexagon_irq_priority_set(unsigned int irq, unsigned int priority)
 		return;
 	}
 
-	/* Use vmintop to set priority */
-	__asm__ volatile("r0 = #3\n\t" /* Op: set priority */
-			 "r1 = %0\n\t" /* IRQ number */
-			 "r2 = %1\n\t" /* Priority */
-			 "trap1(#0x5)" /* vmintop */
-			 :
-			 : "r"(irq), "r"(priority)
-			 : "r0", "r1", "r2", "memory");
+	/* Use interrupt controller abstraction */
+	hexagon_intc_set_priority(irq, priority);
 }
 
 /* Initialize interrupt handling */

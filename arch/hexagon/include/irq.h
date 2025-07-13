@@ -6,6 +6,7 @@
 
 #include <zephyr/irq.h>
 #include <zephyr/sw_isr_table.h>
+#include <hexagon_vm.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,26 +36,17 @@ typedef uint32_t arch_irq_lock_key_t;
 /* Get current interrupt enable state and disable interrupts */
 static ALWAYS_INLINE unsigned int arch_irq_lock(void)
 {
-	uint32_t key;
-
-	__asm__ volatile("trap1(#0x4)\n\t" /* vmgetie - get current state */
-			 "r1 = #0\n\t"     /* prepare to disable */
-			 "trap1(#0x3)"     /* vmsetie(0) - disable interrupts */
-			 : "=r"(key)
-			 :
-			 : "r0", "r1", "memory");
-
+	uint32_t key = hexagon_vm_getie();
+	/* Disable interrupts by setting IE to 0 */
+	hexagon_vm_setie(0);
 	return key;
 }
 
 /* Restore interrupt state */
 static ALWAYS_INLINE void arch_irq_unlock(unsigned int key)
 {
-	__asm__ volatile("r0 = %0\n\t"
-			 "trap1(#0x3)" /* vmsetie - restore state */
-			 :
-			 : "r"(key & 1)
-			 : "r0", "memory");
+	/* Restore interrupt state using VM function */
+	hexagon_vm_setie(key & 1);
 }
 
 /* Test if interrupts are locked */

@@ -4,17 +4,11 @@
 #include <zephyr/kernel.h>
 #include <zephyr/arch/cpu.h>
 #include <zephyr/irq.h>
+#include <hexagon_vm.h>
 
 static inline uint32_t hexagon_vm_wait_irq(void)
 {
-	register uint32_t r0 __asm__("r0");
-
-	__asm__ volatile("trap1(#0x10)" /* vmwait */
-			 : "=r"(r0)
-			 :
-			 : "memory");
-
-	return r0; /* Returns interrupt number that woke us */
+	return hexagon_vm_wait(); /* Returns interrupt number that woke us */
 }
 
 /* Simple idle - just wait with interrupts enabled */
