@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved.
+
+config SOC_QEMU_HEXAGON_VIRT
+	bool "QEMU Hexagon Virtual Machine"
+	select HEXAGON
+	select GEN_ISR_TABLES
+
+config NUM_IRQS
+	default 32 if SOC_QEMU_HEXAGON_VIRT
+
+config SOC
+	default "qemu_hexagon_virt" if SOC_QEMU_HEXAGON_VIRT
+
+config SOC_SERIES
+	default "" if SOC_QEMU_HEXAGON_VIRT
+
+config SOC_FAMILY
+	default "" if SOC_QEMU_HEXAGON_VIRT
