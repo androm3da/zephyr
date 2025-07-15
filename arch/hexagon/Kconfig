@@ -6,10 +6,12 @@ config ARCH
 	default "hexagon"
 
 config HEXAGON_VM
-	bool
+	bool "Hexagon Virtual Machine support"
 	default y
 	help
-	  Hexagon Virtual Machine support
+	  Enable Hexagon Virtual Machine support. This provides VM
+	  instructions for interrupt control, timer operations, and
+	  memory management.
 
 config HEXAGON_HW_THREADS
 	int "Number of hardware threads"
@@ -25,6 +27,12 @@ config HEXAGON_VM_VERSION
 	default 0x1
 	help
 	  Version of Hexagon VM interface to use
+
+config HEXAGON_QEMU_SUPPORT
+	bool "Enhanced QEMU support"
+	default y if QEMU_TARGET
+	help
+	  Enable enhanced QEMU support with debugging and networking features.
 
 endmenu
 

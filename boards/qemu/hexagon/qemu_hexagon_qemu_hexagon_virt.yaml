@@ -1,0 +1,10 @@
+identifier: qemu_hexagon_qemu_hexagon_virt
+name: QEMU Hexagon Virtual Machine
+type: qemu
+arch: hexagon
+simulation: qemu
+testing:
+  timeout_multiplier: 2
+supported:
+  - gpio
+  - uart

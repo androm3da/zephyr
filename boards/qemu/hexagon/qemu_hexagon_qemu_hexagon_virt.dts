@@ -1,0 +1,48 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Copyright (c) 2025 Qualcomm Innovation Center, Inc. All rights reserved. */
+
+/dts-v1/;
+
+#include <mem.h>
+
+/ {
+	model = "QEMU Hexagon Virtual Machine";
+	compatible = "qemu,hexagon-virt";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu0: cpu@0 {
+			device_type = "cpu";
+			compatible = "qcom,hexagon-v67";
+			reg = <0>;
+			clock-frequency = <1000000>;
+
+			/* Hexagon-specific CPU features */
+			hexagon,vm-support;
+			hexagon,hardware-threads = <4>;
+			hexagon,tls-support;
+		};
+	};
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &sram0;
+	};
+
+	/* Main system memory */
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x80000000 DT_SIZE_M(32)>;
+	};
+
+	/* SRAM for code and data */
+	sram0: memory@c0000000 {
+		device_type = "memory";
+		compatible = "mmio-sram";
+		reg = <0xc0000000 DT_SIZE_M(16)>;
+	};
+};
