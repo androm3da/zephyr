@@ -36,10 +36,7 @@ typedef uint32_t arch_irq_lock_key_t;
 /* Get current interrupt enable state and disable interrupts */
 static ALWAYS_INLINE unsigned int arch_irq_lock(void)
 {
-	uint32_t key = hexagon_vm_getie();
-	/* Disable interrupts by setting IE to 0 */
-	hexagon_vm_setie(0);
-	return key;
+	return hexagon_vm_intop_locdis(0);
 }
 
 /* Restore interrupt state */
