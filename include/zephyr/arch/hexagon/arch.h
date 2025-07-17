@@ -13,6 +13,8 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/kernel/mm.h>
 #include <hexagon_vm.h>
+#include <irq.h>
+#include <zephyr/sys/printk.h>
 
 #if defined(CONFIG_GDBSTUB)
 #include <zephyr/arch/hexagon/gdbstub.h>
