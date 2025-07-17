@@ -40,30 +40,6 @@ static inline void arch_kernel_init(void)
 	/* Initialize VM interface */
 }
 
-#include <zephyr/sys/printk.h>
-
-/* IRQ lock/unlock functions */
-static inline unsigned int arch_irq_lock(void)
-{
-	uint32_t prev_state = hexagon_vm_getie();
-	printk("current state: %d\n", prev_state);
-
-	hexagon_vm_setie(0);
-
-	return prev_state;
-}
-
-static inline void arch_irq_unlock(unsigned int key)
-{
-	/* Restore interrupt enable state via vmsetie */
-	hexagon_vm_setie(key);
-}
-
-static inline bool arch_irq_unlocked(unsigned int key)
-{
-	return (key & 1) != 0;
-}
-
 extern uint32_t sys_clock_cycle_get_32(void);
 
 static inline uint32_t arch_k_cycle_get_32(void)
