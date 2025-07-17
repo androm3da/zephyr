@@ -43,7 +43,7 @@ static ALWAYS_INLINE unsigned int arch_irq_lock(void)
 static ALWAYS_INLINE void arch_irq_unlock(unsigned int key)
 {
 	/* Restore interrupt state using VM function */
-	hexagon_vm_setie(key & 1);
+	hexagon_vm_intop_locen(key);
 }
 
 /* Test if interrupts are locked */
