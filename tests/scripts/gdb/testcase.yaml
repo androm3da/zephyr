@@ -1,0 +1,36 @@
+#
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+common:
+  tags:
+    - debug
+    - gdb
+
+tests:
+  debug.gdb_plugin.rtos_awareness:
+    platform_allow:
+      - qemu_cortex_m3
+    harness: pytest
+    harness_config:
+      pytest_root:
+        - "pytest/test_gdb_plugin.py"
+      pytest_args:
+        - "--gdb_timeout"
+        - "30"
+        - "--gdb_script"
+        - "test_plugin.gdbinit"
+        - "--gdb_target_remote"
+        - "tcp::1236"
+    extra_configs:
+      # Disable Zephyr's gdbstub, use QEMU's native gdbstub
+      - CONFIG_GDBSTUB=n
+      # Enable thread monitoring for plugin
+      - CONFIG_THREAD_MONITOR=y
+      - CONFIG_THREAD_NAME=y
+      # Halt QEMU at startup and listen for GDB on unique port
+      - CONFIG_QEMU_EXTRA_FLAGS="-S -gdb tcp::1236"
+      # Clear default QEMU gdb port
+      - CONFIG_QEMU_GDBSERVER_LISTEN_DEV=""
