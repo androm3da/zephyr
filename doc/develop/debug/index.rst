@@ -3,6 +3,11 @@
 Debugging
 #########
 
+.. toctree::
+   :maxdepth: 1
+
+   zephyr_rtos_plugins
+
 .. _application_debugging:
 
 Application Debugging
