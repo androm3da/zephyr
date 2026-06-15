@@ -20,6 +20,7 @@
 #include <zephyr/toolchain.h>
 #include <zephyr/linker/sections.h>
 #include <hexagon_vm.h>
+#include <zephyr/arch/hexagon/gdbstub.h>
 
 /* Event context structure offsets */
 #define EVENT_CTX_R0_R1     0x00
@@ -49,6 +50,11 @@ GTEXT(z_hexagon_enhanced_machine_check)
 GTEXT(z_hexagon_enhanced_exception)
 GTEXT(z_hexagon_enhanced_trap0)
 GTEXT(z_hexagon_enhanced_interrupt)
+#ifdef CONFIG_GDBSTUB
+GTEXT(z_hexagon_enhanced_debug)
+GTEXT(z_hexagon_gdb_entry)
+GDATA(_gdb_callee_regs)
+#endif
 GTEXT(z_hexagon_event_handler)
 GTEXT(z_get_next_switch_handle)
 GTEXT(z_hexagon_arch_switch)
@@ -275,3 +281,164 @@ SECTION_FUNC(TEXT, z_hexagon_enhanced_trap0)
 SECTION_FUNC(TEXT, z_hexagon_enhanced_interrupt)
 	EVENT_ENTRY 7
 	EVENT_EXIT 7
+
+#ifdef CONFIG_GDBSTUB
+/*
+ * Enhanced debug handler for GDB stub.
+ *
+ * Unlike EVENT_ENTRY/EXIT used for normal interrupts, the debug handler
+ * must save ALL registers including callee-saved r16-r27, r28, and special
+ * registers (USR, GP, UGP, LC0, LC1, SA0, SA1) because z_hexagon_gdb_entry()
+ * needs to present the full register file to GDB.
+ *
+ * The callee-saved registers are saved to the static _gdb_callee_regs buffer
+ * (defined in gdbstub.c) rather than the stack, so that gdbstub.c can access
+ * them by known offsets.
+ */
+SECTION_FUNC(TEXT, z_hexagon_enhanced_debug)
+    /* --- Phase 1: save volatile regs (same as EVENT_ENTRY) --- */
+    allocframe(#EVENT_CTX_SIZE)
+
+    memd(r29+#EVENT_CTX_R0_R1) = r1:0
+
+    r0 = gelr
+    memw(r29+#EVENT_CTX_GELR) = r0
+
+    r0 = gsr
+    memw(r29+#EVENT_CTX_GSR) = r0
+
+    {
+        memd(r29+#EVENT_CTX_R2_R3) = r3:2
+        memd(r29+#EVENT_CTX_R4_R5) = r5:4
+    }
+    {
+        memd(r29+#EVENT_CTX_R6_R7) = r7:6
+        memd(r29+#EVENT_CTX_R8_R9) = r9:8
+    }
+    {
+        memd(r29+#EVENT_CTX_R10_R11) = r11:10
+        memd(r29+#EVENT_CTX_R12_R13) = r13:12
+    }
+    {
+        memd(r29+#EVENT_CTX_R14_R15) = r15:14
+    }
+
+    r0 = p3:0
+    memw(r29+#EVENT_CTX_PRED) = r0
+
+    memw(r29+#EVENT_CTX_LR) = r31
+
+    /* --- Phase 2: save callee-saved GPRs to static buffer --- */
+    r0 = ##_gdb_callee_regs
+
+    memd(r0+#GDB_CALLEE_R16_OFF) = r17:16
+    memd(r0+#GDB_CALLEE_R18_OFF) = r19:18
+    memd(r0+#GDB_CALLEE_R20_OFF) = r21:20
+    memd(r0+#GDB_CALLEE_R22_OFF) = r23:22
+    memd(r0+#GDB_CALLEE_R24_OFF) = r25:24
+    memd(r0+#GDB_CALLEE_R26_OFF) = r27:26
+    memw(r0+#GDB_CALLEE_R28_OFF) = r28
+
+    /* --- Phase 3: save special registers to static buffer --- */
+    r1 = usr
+    memw(r0+#GDB_CALLEE_USR_OFF) = r1
+
+    r1 = gp
+    memw(r0+#GDB_CALLEE_GP_OFF) = r1
+
+    r1 = ugp
+    memw(r0+#GDB_CALLEE_UGP_OFF) = r1
+
+    r1 = lc0
+    memw(r0+#GDB_CALLEE_LC0_OFF) = r1
+
+    r1 = lc1
+    memw(r0+#GDB_CALLEE_LC1_OFF) = r1
+
+    r1 = sa0
+    memw(r0+#GDB_CALLEE_SA0_OFF) = r1
+
+    r1 = sa1
+    memw(r0+#GDB_CALLEE_SA1_OFF) = r1
+
+    /* --- Phase 4: call C entry point --- */
+    {
+        r0 = r29
+        call ##z_hexagon_gdb_entry
+    }
+
+    /* --- Phase 5: restore special registers from static buffer --- */
+    r0 = ##_gdb_callee_regs
+
+    r1 = memw(r0+#GDB_CALLEE_USR_OFF)
+    usr = r1
+
+    r1 = memw(r0+#GDB_CALLEE_GP_OFF)
+    gp = r1
+
+    r1 = memw(r0+#GDB_CALLEE_UGP_OFF)
+    ugp = r1
+
+    r1 = memw(r0+#GDB_CALLEE_LC0_OFF)
+    lc0 = r1
+
+    r1 = memw(r0+#GDB_CALLEE_LC1_OFF)
+    lc1 = r1
+
+    r1 = memw(r0+#GDB_CALLEE_SA0_OFF)
+    sa0 = r1
+
+    r1 = memw(r0+#GDB_CALLEE_SA1_OFF)
+    sa1 = r1
+
+    /* --- Phase 6: restore callee-saved GPRs from static buffer --- */
+    r17:16 = memd(r0+#GDB_CALLEE_R16_OFF)
+    r19:18 = memd(r0+#GDB_CALLEE_R18_OFF)
+    r21:20 = memd(r0+#GDB_CALLEE_R20_OFF)
+    r23:22 = memd(r0+#GDB_CALLEE_R22_OFF)
+    r25:24 = memd(r0+#GDB_CALLEE_R24_OFF)
+    r27:26 = memd(r0+#GDB_CALLEE_R26_OFF)
+    r28 = memw(r0+#GDB_CALLEE_R28_OFF)
+
+    /* --- Phase 7: restore volatile regs (skip preemption check) --- */
+    {
+        r31 = memw(r29+#EVENT_CTX_LR)
+    }
+
+    r0 = memw(r29+#EVENT_CTX_PRED)
+    p3:0 = r0
+
+    {
+        r15:14 = memd(r29+#EVENT_CTX_R14_R15)
+        r13:12 = memd(r29+#EVENT_CTX_R12_R13)
+    }
+    {
+        r11:10 = memd(r29+#EVENT_CTX_R10_R11)
+        r9:8 = memd(r29+#EVENT_CTX_R8_R9)
+    }
+    {
+        r7:6 = memd(r29+#EVENT_CTX_R6_R7)
+        r5:4 = memd(r29+#EVENT_CTX_R4_R5)
+    }
+    {
+        r3:2 = memd(r29+#EVENT_CTX_R2_R3)
+    }
+
+    r0 = memw(r29+#EVENT_CTX_GELR)
+    gelr = r0
+
+    r0 = memw(r29+#EVENT_CTX_GSR)
+    gsr = r0
+
+    {
+        r1:0 = memd(r29+#EVENT_CTX_R0_R1)
+    }
+
+    {
+        deallocframe
+    }
+
+    {
+        trap1(#HEXAGON_VM_vmrte)
+    }
+#endif /* CONFIG_GDBSTUB */

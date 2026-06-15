@@ -35,6 +35,14 @@ extern void arch_new_thread(struct k_thread *thread, k_thread_stack_t *stack, ch
 /* Stack pointer manipulation */
 extern char *arch_k_thread_stack_buffer(k_thread_stack_t *stack);
 
+/* Stack protection functions */
+#ifdef CONFIG_HW_STACK_PROTECTION
+extern void z_arch_stack_protection_setup(struct k_thread *thread);
+extern void z_arch_stack_protection_disable(struct k_thread *thread);
+extern void z_arch_stack_protection_switch(struct k_thread *old_thread,
+					   struct k_thread *new_thread);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

@@ -24,10 +24,14 @@
 #include <zephyr/linker/sections.h>
 #include <hexagon_vm.h>
 
+/* SSR bit definitions */
+#define SSR_EX_BIT      17
+
 GTEXT(__start)
 GTEXT(__reset_handler)
 GTEXT(_machine_check_handler)
 GTEXT(_general_exception_handler)
+GTEXT(_debug_handler)
 GTEXT(_trap0_handler)
 GTEXT(_interrupt_handler)
 
@@ -57,7 +61,7 @@ SECTION_FUNC(reset, __start)
 	/* 2: General exception */
 	jump #_general_exception_handler
 	/* 3: Debug */
-	jump #_unhandled_event
+	jump #_debug_handler
 	/* 4: Reserved */
 	jump #_unhandled_event
 	/* 5: Trap0 (syscall) */
@@ -142,7 +146,8 @@ SECTION_FUNC(TEXT, _machine_check_handler)
 /*
  * General exception handler.
  * Route through the enhanced handler which saves full volatile context,
- * calls z_hexagon_exception_handler(), and handles preemption on exit.
+ * calls z_hexagon_exception_handler() (which detects breakpoints for
+ * gdbstub), and handles preemption on exit.
  */
 SECTION_FUNC(TEXT, _general_exception_handler)
 	jump ##z_hexagon_enhanced_exception
@@ -151,10 +156,19 @@ SECTION_FUNC(TEXT, _general_exception_handler)
  * Trap0 (syscall) handler.
  * Route through the enhanced handler so that trap0 events get full
  * context save/restore.  The C handler z_hexagon_trap0_handler()
- * dispatches based on r6 (syscall number).
+ * dispatches based on r6 (syscall number) and checks for GDB
+ * breakpoint traps.
  */
 SECTION_FUNC(TEXT, _trap0_handler)
 	jump ##z_hexagon_enhanced_trap0
+
+
+SECTION_FUNC(TEXT, _debug_handler)
+#ifdef CONFIG_GDBSTUB
+	jump ##z_hexagon_enhanced_debug
+#else
+	jump ##_unhandled_event
+#endif
 
 SECTION_FUNC(TEXT, _interrupt_handler)
 	jump ##z_hexagon_enhanced_interrupt

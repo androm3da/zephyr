@@ -17,3 +17,7 @@ zephyr_library_sources(
 )
 
 zephyr_library_sources_ifdef(CONFIG_THREAD_LOCAL_STORAGE tls.c)
+
+zephyr_library_sources_ifdef(CONFIG_HW_STACK_PROTECTION stack_protect.c)
+zephyr_library_sources_ifdef(CONFIG_PM power.c)
+zephyr_library_sources_ifdef(CONFIG_GDBSTUB gdbstub.c)
