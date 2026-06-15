@@ -8,9 +8,9 @@
 #define ZEPHYR_ARCH_HEXAGON_INCLUDE_ATOMIC_H_
 
 /*
- * Hexagon uses ATOMIC_OPERATIONS_BUILTIN (compiler builtins) for
- * atomic operations.  This file provides architecture-specific
- * memory barrier instructions.
+ * Hexagon uses ATOMIC_OPERATIONS_BUILTIN (compiler builtins via
+ * __atomic_*) for all atomic operations.  No architecture-specific
+ * inline definitions are needed; this file is intentionally empty.
  */
 
 #endif /* ZEPHYR_ARCH_HEXAGON_INCLUDE_ATOMIC_H_ */

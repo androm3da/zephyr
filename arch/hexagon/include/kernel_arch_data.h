@@ -23,7 +23,12 @@
 extern "C" {
 #endif
 
-/* Additional kernel arch data if needed */
+/*
+ * This file is intentionally minimal.  Hexagon does not require any
+ * additional per-CPU or per-kernel data beyond what the generic kernel
+ * provides.  It exists because the Zephyr build system unconditionally
+ * includes <kernel_arch_data.h> from the kernel internals.
+ */
 
 #ifdef __cplusplus
 }

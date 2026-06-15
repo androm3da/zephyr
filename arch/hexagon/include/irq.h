@@ -57,6 +57,11 @@ static ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
 	return key != 0;
 }
 
+static ALWAYS_INLINE bool arch_cpu_irqs_are_enabled(void)
+{
+	return hexagon_vm_getie() != 0;
+}
+
 /* Enable specific IRQ */
 void arch_irq_enable(unsigned int irq);
 

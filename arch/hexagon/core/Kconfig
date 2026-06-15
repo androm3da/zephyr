@@ -1,5 +1,44 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
 
+config CPU_HAS_TLS
+	bool
+	help
+	  This option is enabled when the CPU has hardware thread local storage.
+
+if MMU
+config MMU_PAGE_SIZE
+	hex "MMU page size"
+	default 0x10000
+	help
+	  Hexagon VM supports multiple page sizes: 4KB (0x1000), 16KB (0x4000),
+	  64KB (0x10000), 256KB (0x40000), 1MB (0x100000), 4MB (0x400000), 16MB (0x1000000).
+
+	  Larger page sizes reduce the number of TLB entries needed, which can help
+	  avoid "TLB index beyond limit" errors from the loadlinux bootloader.
+
+	  Default is 64KB (0x10000).  Larger pages cause excessive binary bloat
+	  due to alignment padding (e.g., 4MB pages create 13MB binaries).
+endif
+
+config MAIN_STACK_SIZE
+	default 2048
+
+config IDLE_STACK_SIZE
+	default 1024
+
+config ISR_STACK_SIZE
+	default 4096
+
+config ARCH_HAS_STACKWALK
+	bool
+	default y
+	imply THREAD_STACK_INFO
+
+config HEXAGON_EXCEPTION_DEBUG
+	bool "Hexagon exception debugging"
+	help
+	  Enable debugging of Hexagon exceptions and events
+
 config TEST_EXTRA_STACK_SIZE
 	default 2048

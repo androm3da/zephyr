@@ -55,12 +55,37 @@ struct _callee_saved {
 
 typedef struct _callee_saved _callee_saved_t;
 
+/* Thread flags */
+#define HEXAGON_THREAD_FLAG_ABORT      0x01
+#define HEXAGON_THREAD_FLAG_FP_USED    0x02
+#define HEXAGON_THREAD_FLAG_STACK_PROT 0x04
+
 /**
  * @brief Architecture-specific thread data.
  */
 struct _thread_arch {
 	/** Return value from arch_switch. */
 	uint32_t swap_return_value;
+
+	/* Thread privilege level */
+	uint8_t priv_level;
+
+	/* Flags */
+	uint8_t flags;
+
+	/* Hardware thread ID (-1 if not a hardware thread) */
+	int8_t hw_thread_id;
+
+	/* Thread-local storage pointer */
+	void *tls_ptr;
+
+	/* User global pointer (UGP) for TLS */
+	uint32_t ugp;
+
+#ifdef CONFIG_HW_STACK_PROTECTION
+	/* Stack protection FRAMELIMIT value */
+	uint32_t framelimit;
+#endif
 };
 
 typedef struct _thread_arch _thread_arch_t;

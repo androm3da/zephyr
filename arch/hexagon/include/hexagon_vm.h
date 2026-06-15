@@ -41,6 +41,12 @@
 /* Special trap0 numbers */
 #define HEXAGON_VM_hwconfig    31
 
+/* vmnewmap arguments */
+#define VM_TRANS_TYPE_LINEAR    0
+#define VM_TRANS_TYPE_TABLE     1
+#define VM_TLB_INVALIDATE_FALSE 0
+#define VM_TLB_INVALIDATE_TRUE  1
+
 /* Page table entry bits */
 #define __HVM_PDE_S_4KB   0
 #define __HVM_PDE_S_16KB  1
@@ -55,14 +61,6 @@
 #define __HVM_PTE_X (1 << 11) /* Execute */
 #define __HVM_PTE_U (1 << 5)  /* User */
 #define __HVM_PTE_SHARED (1 << 3) /* Shared: bypass guestmap translation */
-
-/* vmnewmap translation types (from H2 h2_common_asid.h) */
-#define VM_TRANS_TYPE_LINEAR  0
-#define VM_TRANS_TYPE_TABLE   1
-
-/* vmnewmap TLB invalidation flags */
-#define VM_TLB_INVALIDATE_FALSE 0
-#define VM_TLB_INVALIDATE_TRUE  1
 
 /* Cache attributes (bits 6-8) */
 #define __HEXAGON_C_WB    0x0 /* Write-back, no L2 */
