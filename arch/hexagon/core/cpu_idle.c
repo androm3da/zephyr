@@ -15,10 +15,13 @@
  * timer expiry alone.  Posting the timer interrupt manually before
  * re-enabling IE ensures the vmsetie trap's interrupt-check path
  * sees a pending interrupt and dispatches it immediately.
+ *
+ * This workaround is gated on CONFIG_QEMU_TARGET so that real-hardware
+ * targets do not inherit the unnecessary wakeup on every idle entry.
  */
 static inline void hexagon_ensure_timer_tick(void)
 {
-#ifdef CONFIG_HEXAGON_TIMER
+#if defined(CONFIG_HEXAGON_TIMER) && defined(CONFIG_QEMU_TARGET)
 	hexagon_vm_intop_post(CONFIG_HEXAGON_TIMER_IRQ, 0);
 #endif
 }

@@ -65,6 +65,11 @@ static int sys_clock_driver_init(void)
 	}
 
 	timer_data.cycles_per_tick = (uint32_t)(freq / CONFIG_SYS_CLOCK_TICKS_PER_SEC);
+	if (timer_data.cycles_per_tick == 0) {
+		/* freq was non-zero but rounds to zero -- use fallback */
+		timer_data.cycles_per_tick =
+			CONFIG_SYS_CLOCK_HW_CYCLES_PER_SEC / CONFIG_SYS_CLOCK_TICKS_PER_SEC;
+	}
 	timer_data.accumulated_cycles = 0;
 
 	/* Connect and enable the timer IRQ */
@@ -130,7 +135,13 @@ static inline void hexagon_pause(void)
 
 /*
  * Busy wait -- simple delay loop using the pause instruction.
- * Each iteration takes approximately 1 us on QEMU.
+ *
+ * WARNING: This implementation is calibrated for QEMU only.  The pause(#255)
+ * instruction provides a pipeline hint whose actual delay depends on the
+ * microarchitecture and clock frequency.  On QEMU each iteration is
+ * approximately 1 us, but on real hardware running at a different frequency
+ * the delay will be proportionally wrong.  A future implementation should
+ * measure elapsed time using the HVM timer for hardware accuracy.
  */
 void arch_busy_wait(uint32_t usec_to_wait)
 {
