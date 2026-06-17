@@ -50,6 +50,11 @@ static inline void timestamp_serialize(void)
 #define timestamp_serialize()
 #elif defined(CONFIG_OPENRISC)
 #define timestamp_serialize()
+#elif defined(CONFIG_HEXAGON)
+static inline void timestamp_serialize(void)
+{
+	__asm__ volatile("barrier" ::: "memory");
+}
 #else
 #error implementation of timestamp_serialize() not provided for your CPU target
 #endif
