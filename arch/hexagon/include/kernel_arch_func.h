@@ -13,16 +13,40 @@
 #include <zephyr/types.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/toolchain.h>
+#include <hvx.h>
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+/* Stack protection functions */
+#ifdef CONFIG_HW_STACK_PROTECTION
+extern void z_arch_stack_protection_setup(struct k_thread *thread);
+extern void z_arch_stack_protection_switch(struct k_thread *old_thread,
+					   struct k_thread *new_thread);
 #endif
 
 /* Thread context switching */
 extern void z_hexagon_arch_switch(void *switch_to, void **switched_from);
 static ALWAYS_INLINE void arch_switch(void *switch_to, void **switched_from)
 {
+#if defined(CONFIG_HW_STACK_PROTECTION) || defined(CONFIG_HEXAGON_HVX)
+	/*
+	 * Back-calculate the old k_thread pointer from switched_from, which
+	 * is &old_thread->switch_handle.  After z_hexagon_arch_switch()
+	 * returns, _current already points to the new thread (the Zephyr
+	 * scheduler sets _current before calling arch_switch).
+	 */
+	struct k_thread *old_thread =
+		CONTAINER_OF(switched_from, struct k_thread, switch_handle);
+#endif
 	z_hexagon_arch_switch(switch_to, switched_from);
+#ifdef CONFIG_HW_STACK_PROTECTION
+	z_arch_stack_protection_switch(old_thread, _current);
+#endif
+#ifdef CONFIG_HEXAGON_HVX
+	hvx_arch_thread_switch(old_thread, _current);
+#endif
 }
 
 /*
@@ -31,12 +55,9 @@ static ALWAYS_INLINE void arch_switch(void *switch_to, void **switched_from)
  * z_arch_stack_protection_setup() is called from arch_new_thread() in
  * arch/hexagon/core/thread.c whenever a new thread is created.
  *
- * z_arch_stack_protection_switch() must be called on every context switch
- * to update the FRAMELIMIT register for the incoming thread.  It is invoked
- * from z_hexagon_do_stack_switch() in arch/hexagon/core/stack_protect.c,
- * which in turn is called from the EVENT_EXIT preemption path via
- * z_hexagon_arch_switch().  (Wiring is arch-internal; callers outside
- * arch/hexagon/ should use the generic CONFIG_HW_STACK_PROTECTION Kconfig.)
+ * z_arch_stack_protection_switch() is called from the arch_switch() inline
+ * above on every context switch, updating the FRAMELIMIT register for the
+ * incoming thread.
  */
 
 /* Thread creation */
@@ -48,13 +69,6 @@ extern void arch_new_thread(struct k_thread *thread, k_thread_stack_t *stack, ch
 
 /* Stack pointer manipulation */
 extern char *arch_k_thread_stack_buffer(k_thread_stack_t *stack);
-
-/* Stack protection functions */
-#ifdef CONFIG_HW_STACK_PROTECTION
-extern void z_arch_stack_protection_setup(struct k_thread *thread);
-extern void z_arch_stack_protection_switch(struct k_thread *old_thread,
-					   struct k_thread *new_thread);
-#endif
 
 #ifdef __cplusplus
 }

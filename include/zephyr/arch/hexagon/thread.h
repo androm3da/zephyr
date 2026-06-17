@@ -15,6 +15,9 @@
 #ifndef _ASMLANGUAGE
 #include <zephyr/types.h>
 
+/* Forward declaration to avoid including hvx.h from thread.h */
+struct hvx_context;
+
 /**
  * @brief Callee-saved register context for cooperative context switching.
  */
@@ -85,6 +88,17 @@ struct _thread_arch {
 #ifdef CONFIG_HW_STACK_PROTECTION
 	/* Stack protection FRAMELIMIT value */
 	uint32_t framelimit;
+#endif
+
+#ifdef CONFIG_HEXAGON_HVX
+	/*
+	 * Per-thread HVX context pointer.  Using a dedicated field here
+	 * (rather than k_thread_custom_data) avoids conflicting with
+	 * application use of the custom-data slot.
+	 *
+	 * NULL means this thread has not allocated an HVX context.
+	 */
+	struct hvx_context *hvx_ctx;
 #endif
 };
 
