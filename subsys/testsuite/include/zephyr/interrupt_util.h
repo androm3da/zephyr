@@ -269,6 +269,15 @@ static inline void trigger_irq(int irq)
 		_sw_isr_table[irq - CONFIG_GEN_IRQ_START_VECTOR].arg);
 }
 
+#elif defined(CONFIG_HEXAGON)
+
+extern int hexagon_irq_trigger(unsigned int irq);
+
+static inline void trigger_irq(int irq)
+{
+	hexagon_irq_trigger(irq);
+}
+
 #else
 #define NO_TRIGGER_FROM_SW
 #endif
