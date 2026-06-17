@@ -13,6 +13,7 @@
 #include <hexagon_vm.h>
 #include <hexagon_intc.h>
 #include <irq.h>
+#include <event_context.h>
 #ifdef CONFIG_GDBSTUB
 #include <zephyr/arch/hexagon/gdbstub.h>
 #endif
@@ -22,31 +23,6 @@ extern void z_hexagon_user_mode_sync(void);
 #endif
 
 LOG_MODULE_DECLARE(os, CONFIG_KERNEL_LOG_LEVEL);
-
-/* Event context saved by assembly handlers -- must match event_handlers.S */
-struct event_context {
-	uint32_t r0_r1[2];
-	uint32_t r2_r3[2];
-	uint32_t r4_r5[2];
-	uint32_t r6_r7[2];
-	uint32_t r8_r9[2];
-	uint32_t r10_r11[2];
-	uint32_t r12_r13[2];
-	uint32_t r14_r15[2];
-	uint32_t pred_regs;
-	uint32_t link_reg;
-	uint32_t gelr;          /* saved GELR (return PC) */
-	uint32_t gsr;           /* saved GSR (guest status) */
-	uint32_t sa0;
-	uint32_t lc0;
-	uint32_t sa1;
-	uint32_t lc1;
-	uint32_t m0;
-	uint32_t m1;
-	uint32_t usr;
-	uint32_t r28;
-	uint32_t scratch;       /* temporary storage used during event exit */
-};
 
 /* ISR nesting counter -- read by arch_is_in_isr() in arch.h */
 uint32_t z_hexagon_isr_nesting;
@@ -201,8 +177,6 @@ static void z_hexagon_exception_handler(struct event_context *ctx)
  */
 static void z_hexagon_trap0_handler(struct event_context *ctx)
 {
-	uint32_t syscall_num = ctx->r6_r7[0]; /* r6 */
-
 #ifdef CONFIG_GDBSTUB
 	{
 		/* Check if the trap0 instruction is a GDB breakpoint.
