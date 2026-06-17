@@ -1367,7 +1367,7 @@ int net_context_connect(struct net_context *context,
 			void *user_data)
 {
 	struct net_sockaddr *laddr = NULL;
-	struct net_sockaddr local_addr __unused;
+	struct net_sockaddr local_addr __unused = {0};
 	uint16_t lport, rport;
 	int ret;
 
