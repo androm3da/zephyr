@@ -63,7 +63,12 @@ static uint32_t l2_table_next;
 
 /**
  * Allocate an L2 page table from the static pool.
- * Returns the physical address of the table (identity-mapped at boot).
+ * Returns a pointer to the zeroed table (identity-mapped at boot).
+ *
+ * NOTE: l2_table_next is incremented without a lock.  This is safe only
+ * because arch_mem_map() is called from a single context at boot or while
+ * holding the kernel lock on a single-CPU system.  If concurrent callers
+ * are ever introduced, this must be protected by a spinlock.
  */
 static uint32_t *l2_table_alloc(void)
 {
