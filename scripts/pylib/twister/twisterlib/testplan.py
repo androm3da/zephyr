@@ -963,6 +963,8 @@ class TestPlan:
                         toolchain = 'host/llvm'
                     else:
                         toolchain = 'host/gnu'
+                elif plat.arch == 'hexagon':
+                    toolchain = 'host/llvm'
                 else:
                     toolchain = "zephyr" if not self.env.toolchain else self.env.toolchain
 

@@ -162,6 +162,7 @@ class Platform:
           # for 'arc' we rely on 'toolchain' option in board yaml configuration.
           "arm": ["zephyr", "gnuarmemb", "armclang", "llvm"],
           "arm64": ["zephyr", "cross-compile"],
+          "hexagon": ["host"],
           "mips": ["zephyr"],
           "openrisc": ["zephyr"],
           "riscv": ["zephyr", "cross-compile"],
