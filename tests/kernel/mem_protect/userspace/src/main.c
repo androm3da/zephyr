@@ -205,6 +205,11 @@ ZTEST_USER(userspace, test_write_control)
 	set_fault(K_ERR_CPU_EXCEPTION);
 
 	__asm__ volatile("rsr.ps %0" : "=r" (ps));
+#elif defined(CONFIG_HEXAGON)
+	set_fault(K_ERR_CPU_EXCEPTION);
+
+	/* trap1 is a VM hypercall, privileged under H2 -- faults in user mode */
+	__asm__ volatile("trap1(#0)");
 #else
 #error "Not implemented for this architecture"
 	zassert_unreachable("Write to control register did not fault");
@@ -305,6 +310,11 @@ ZTEST_USER(userspace, test_disable_mmu_mpu)
 	}
 #endif
 
+#elif defined(CONFIG_HEXAGON)
+	set_fault(K_ERR_CPU_EXCEPTION);
+
+	/* trap1 is a VM hypercall, privileged under H2 -- faults in user mode */
+	__asm__ volatile("trap1(#0)");
 #else
 #error "Not implemented for this architecture"
 #endif
@@ -442,7 +452,7 @@ ZTEST_USER(userspace, test_read_priv_stack)
 	s[0] = 0;
 	priv_stack_ptr = (char *)&s[0] - size;
 #elif defined(CONFIG_ARM) || defined(CONFIG_X86) || defined(CONFIG_RISCV) || \
-	defined(CONFIG_ARM64) || defined(CONFIG_XTENSA)
+	defined(CONFIG_ARM64) || defined(CONFIG_XTENSA) || defined(CONFIG_HEXAGON)
 	/* priv_stack_ptr set by test_main() */
 #else
 #error "Not implemented for this architecture"
@@ -467,7 +477,7 @@ ZTEST_USER(userspace, test_write_priv_stack)
 	s[0] = 0;
 	priv_stack_ptr = (char *)&s[0] - size;
 #elif defined(CONFIG_ARM) || defined(CONFIG_X86) || defined(CONFIG_RISCV) || \
-	defined(CONFIG_ARM64) || defined(CONFIG_XTENSA)
+	defined(CONFIG_ARM64) || defined(CONFIG_XTENSA) || defined(CONFIG_HEXAGON)
 	/* priv_stack_ptr set by test_main() */
 #else
 #error "Not implemented for this architecture"
@@ -1208,6 +1218,15 @@ void *userspace_setup(void)
 
 	hdr = vhdr;
 	priv_stack_ptr = (((char *)&hdr->privilege_stack) + (sizeof(hdr->privilege_stack) - 1));
+#elif defined(CONFIG_HEXAGON)
+	/* Hexagon has no separate privilege stack.  Use a kernel .bss
+	 * address outside the user thread's stack memory region.
+	 */
+	{
+		static char kernel_only_buf[4];
+
+		priv_stack_ptr = kernel_only_buf;
+	}
 #endif
 	k_thread_access_grant(k_current_get(),
 			      &test_thread, &test_stack,
