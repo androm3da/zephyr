@@ -10,3 +10,9 @@
 list(APPEND TOOLCHAIN_C_FLAGS -G0)
 list(APPEND TOOLCHAIN_CXX_FLAGS -G0)
 list(APPEND TOOLCHAIN_LD_FLAGS -G0)
+
+# Zephyr is a statically linked kernel; position-independent code is wrong here.
+# Some Hexagon target triples (e.g. hexagon-unknown-linux-musl) default to PIC,
+# so disable it explicitly, consistent with every other Zephyr architecture.
+list(APPEND TOOLCHAIN_C_FLAGS -fno-pic)
+list(APPEND TOOLCHAIN_CXX_FLAGS -fno-pic)
