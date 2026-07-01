@@ -189,24 +189,24 @@ static void map_range(uintptr_t virt, uintptr_t phys, size_t size,
 void hexagon_mmu_init(void)
 {
 	int32_t ret;
-	uint32_t rwx = __HVM_PTE_R | __HVM_PTE_W | __HVM_PTE_X;
+	uint32_t rwxu = __HVM_PTE_R | __HVM_PTE_W | __HVM_PTE_X | __HVM_PTE_U;
 
 	memset(pgd, 0, sizeof(pgd));
 	l2_table_next = 0;
 
-	/* Identity-map SRAM: 0xa0000000, 16MB, cached WB+L2, RWX */
+	/* Identity-map SRAM: 0xa0000000, 16MB, cached WB+L2, RWXU */
 	map_range(0xa0000000, 0xa0000000, 16 * 1024 * 1024,
-		  __HEXAGON_C_WB_L2, rwx);
+		  __HEXAGON_C_WB_L2, rwxu);
 
-	/* Identity-map RAM: 0x80000000, 32MB, cached WB+L2, RWX */
+	/* Identity-map RAM: 0x80000000, 32MB, cached WB+L2, RWXU */
 	map_range(0x80000000, 0x80000000, 32 * 1024 * 1024,
-		  __HEXAGON_C_WB_L2, rwx);
+		  __HEXAGON_C_WB_L2, rwxu);
 
-	/* Identity-map device MMIO: 0x10000000, 256MB, device/uncached, RW
+	/* Identity-map device MMIO: 0x10000000, 256MB, device/uncached, RWU
 	 * This covers the PL011 UART (0x10000000) and VirtIO (0x11000000+)
 	 */
 	map_range(0x10000000, 0x10000000, 256 * 1024 * 1024,
-		  __HEXAGON_C_DEV, __HVM_PTE_R | __HVM_PTE_W);
+		  __HEXAGON_C_DEV, __HVM_PTE_R | __HVM_PTE_W | __HVM_PTE_U);
 
 	/* Flush data cache to ensure page tables are visible to the walker */
 	hexagon_vm_cache(hvmc_dccleaninva, 0, 0);
