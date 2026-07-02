@@ -21,11 +21,16 @@ int arch_buffer_validate(const void *addr, size_t size, int write)
 {
 	struct k_thread *thread = k_current_get();
 	uintptr_t start = (uintptr_t)addr;
-	uintptr_t end = start + size;
+	uintptr_t end;
 
 	if (!arch_is_user_context()) {
 		return 0;
 	}
+
+	if (size > (UINTPTR_MAX - start)) {
+		return -EPERM;
+	}
+	end = start + size;
 
 	/* Check thread stack */
 	if (start >= thread->stack_info.start &&
@@ -80,7 +85,7 @@ size_t arch_user_string_nlen(const char *s, size_t maxsize, int *err_arg)
 static void __used __naked hexagon_user_thread_exit(void)
 {
 	/*
-	 * User function returned — call k_thread_abort(self) via
+	 * User function returned -- call k_thread_abort(self) via
 	 * explicit trap0 syscall.  We cannot use the C wrapper because
 	 * the compiler may optimize away the user-mode check.
 	 *
@@ -95,7 +100,7 @@ static void __used __naked hexagon_user_thread_exit(void)
 		/* syscall: k_thread_abort(r0) */
 		"r6 = #%[sc_id]\n\t"
 		"trap0(#0x1)\n\t"
-		/* should not return — loop as backstop */
+		/* should not return -- loop as backstop */
 		"1: jump 1b\n\t"
 		:
 		: [cpus_off] "i"(___kernel_t_cpus_OFFSET),
@@ -115,7 +120,7 @@ void arch_user_mode_enter(k_thread_entry_t user_entry, void *p1, void *p2, void 
 
 	/*
 	 * Save the current kernel SP as GOSP.  When H2 delivers an event
-	 * from user mode (trap0 syscall), it swaps r29 with GOSP — landing
+	 * from user mode (trap0 syscall), it swaps r29 with GOSP -- landing
 	 * the kernel event handler on this kernel stack rather than the
 	 * user stack.  Without this, EVENT_ENTRY's allocframe overwrites
 	 * the user function's saved LR on the user stack.
