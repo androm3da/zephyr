@@ -42,14 +42,25 @@ static void hexagon_timer_isr(const void *arg)
 {
 	ARG_UNUSED(arg);
 
-	/* Accumulate cycles (software counter) */
-	timer_data.accumulated_cycles += timer_data.cycles_per_tick;
+	uint64_t now = hexagon_vm_timerop(hvmt_gettime, 0, 0);
+	uint32_t dticks = 1;
 
-	/* Program next tick (works on real hardware; harmless on QEMU) */
+	if (now > timer_data.last_announce_time && timer_data.cycles_per_tick > 0) {
+		uint64_t elapsed = now - timer_data.last_announce_time;
+
+		dticks = (uint32_t)(elapsed / timer_data.cycles_per_tick);
+		if (dticks == 0) {
+			dticks = 1;
+		}
+	}
+
+	timer_data.accumulated_cycles += (uint64_t)dticks * timer_data.cycles_per_tick;
+	timer_data.last_announce_time = now;
+
+	/* Program next tick */
 	hexagon_timer_program_next();
 
-	/* Announce timer tick to kernel */
-	sys_clock_announce(1);
+	sys_clock_announce(dticks);
 }
 
 /* Initialize system timer */
@@ -71,6 +82,7 @@ static int sys_clock_driver_init(void)
 			CONFIG_SYS_CLOCK_HW_CYCLES_PER_SEC / CONFIG_SYS_CLOCK_TICKS_PER_SEC;
 	}
 	timer_data.accumulated_cycles = 0;
+	timer_data.last_announce_time = hexagon_vm_timerop(hvmt_gettime, 0, 0);
 
 	/* Connect and enable the timer IRQ */
 	arch_irq_connect_dynamic(HEXAGON_TIMER_IRQ, HEXAGON_TIMER_IRQ_PRIORITY,
@@ -132,27 +144,19 @@ void sys_clock_disable(void)
 	}
 }
 
-static inline void hexagon_pause(void)
-{
-	__asm__ volatile("pause(#255)" :::);
-}
-
-/*
- * Busy wait -- simple delay loop using the pause instruction.
- *
- * WARNING: This implementation is calibrated for QEMU only.  The pause(#255)
- * instruction provides a pipeline hint whose actual delay depends on the
- * microarchitecture and clock frequency.  On QEMU each iteration is
- * approximately 1 us, but on real hardware running at a different frequency
- * the delay will be proportionally wrong.  A future implementation should
- * measure elapsed time using the HVM timer for hardware accuracy.
- */
 void arch_busy_wait(uint32_t usec_to_wait)
 {
-	uint32_t usec_elapsed = 0;
+	if (usec_to_wait == 0) {
+		return;
+	}
 
-	while (usec_elapsed < usec_to_wait) {
-		hexagon_pause();
-		usec_elapsed++;
+	uint64_t start = hexagon_vm_timerop(hvmt_gettime, 0, 0);
+	uint64_t freq = timer_data.cycles_per_tick *
+			(uint64_t)CONFIG_SYS_CLOCK_TICKS_PER_SEC;
+	uint64_t wait_cycles = (freq / 1000000ULL) * usec_to_wait;
+	uint64_t target = start + wait_cycles;
+
+	while (hexagon_vm_timerop(hvmt_gettime, 0, 0) < target) {
+		/* spin */
 	}
 }

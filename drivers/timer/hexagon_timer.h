@@ -21,6 +21,7 @@
 /* Timer runtime data */
 struct hexagon_timer_data {
 	uint64_t accumulated_cycles;
+	uint64_t last_announce_time;
 	uint32_t cycles_per_tick;
 };
 
