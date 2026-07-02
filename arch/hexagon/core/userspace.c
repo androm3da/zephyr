@@ -13,6 +13,7 @@
 #include <zephyr/arch/hexagon/arch.h>
 #include <zephyr/internal/syscall_handler.h>
 #include <hexagon_vm.h>
+#include <offsets_short.h>
 
 #ifdef CONFIG_USERSPACE
 
@@ -76,6 +77,34 @@ size_t arch_user_string_nlen(const char *s, size_t maxsize, int *err_arg)
  *   G2 = GOSP (user stack pointer)
  *   G3 = GBADVA (0 for normal entry)
  */
+static void __used __naked hexagon_user_thread_exit(void)
+{
+	/*
+	 * User function returned — call k_thread_abort(self) via
+	 * explicit trap0 syscall.  We cannot use the C wrapper because
+	 * the compiler may optimize away the user-mode check.
+	 *
+	 * Syscall convention: r0 = arg (thread), r6 = syscall number.
+	 * k_current_get() is just a memory read (no privilege needed).
+	 */
+	__asm__ volatile(
+		/* r0 = _kernel.cpus[0].current (k_current_get) */
+		"r0 = ##_kernel\n\t"
+		"r0 = add(r0, #%[cpus_off])\n\t"
+		"r0 = memw(r0+#%[cur_off])\n\t"
+		/* syscall: k_thread_abort(r0) */
+		"r6 = #%[sc_id]\n\t"
+		"trap0(#0x1)\n\t"
+		/* should not return — loop as backstop */
+		"1: jump 1b\n\t"
+		:
+		: [cpus_off] "i"(___kernel_t_cpus_OFFSET),
+		  [cur_off] "i"(___cpu_t_current_OFFSET),
+		  [sc_id] "i"(K_SYSCALL_K_THREAD_ABORT)
+		:
+	);
+}
+
 void arch_user_mode_enter(k_thread_entry_t user_entry, void *p1, void *p2, void *p3)
 {
 	struct k_thread *thread = k_current_get();
@@ -83,6 +112,15 @@ void arch_user_mode_enter(k_thread_entry_t user_entry, void *p1, void *p2, void 
 	uintptr_t user_sp = thread->stack_info.start + thread->stack_info.size;
 
 	user_sp = ROUND_DOWN(user_sp, ARCH_STACK_PTR_ALIGN);
+
+	/*
+	 * Save the current kernel SP as GOSP.  When H2 delivers an event
+	 * from user mode (trap0 syscall), it swaps r29 with GOSP — landing
+	 * the kernel event handler on this kernel stack rather than the
+	 * user stack.  Without this, EVENT_ENTRY's allocframe overwrites
+	 * the user function's saved LR on the user stack.
+	 */
+	uintptr_t kernel_sp = (uintptr_t)__builtin_frame_address(0);
 
 	memset((void *)thread->stack_info.start, 0, user_sp - thread->stack_info.start);
 
@@ -96,28 +134,39 @@ void arch_user_mode_enter(k_thread_entry_t user_entry, void *p1, void *p2, void 
 	 */
 	_hexagon_user_mode_active = 1;
 
+	/*
+	 * H2 vmrte with GSSR.UM swaps r29 <-> GOSP.  To end up with
+	 * r29=user_sp in user mode, set:
+	 *   r29 = kernel_sp (will become gosp after swap)
+	 *   GOSP (g2) = user_sp (will become r29 after swap)
+	 */
 	__asm__ volatile(
 		"r4 = %[entry]\n\t"
 		"r5 = %[vmest]\n\t"
-		"r6 = %[stack]\n\t"
+		"r6 = %[stack]\n\t"      /* GOSP = user SP (becomes r29) */
 		"r7 = #0\n\t"
-		"g0 = r4\n\t"             /* GELR */
-		"g1 = r5\n\t"             /* GSR */
-		"g2 = r6\n\t"             /* GOSP */
-		"g3 = r7\n\t"             /* GBADVA */
+		"g0 = r4\n\t"            /* GELR = user entry */
+		"g1 = r5\n\t"            /* GSR = UM + IE */
+		"g2 = r6\n\t"            /* GOSP = user SP */
+		"g3 = r7\n\t"            /* GBADVA = 0 */
 		"r0 = %[p1]\n\t"
 		"r1 = %[p2]\n\t"
 		"r2 = %[p3]\n\t"
-		"r29 = %[stack]\n\t"
-		"trap1(#1)\n\t"           /* vmrte */
+		"r29 = %[ksp]\n\t"       /* kernel SP (becomes gosp) */
+		"r31 = %[exit_fn]\n\t"   /* LR = user thread exit stub */
+		"r30 = #0\n\t"           /* FP = 0 (no parent frame) */
+		"trap1(#1)\n\t"          /* vmrte */
 		:
 		: [entry] "r"((uintptr_t)user_entry),
-		  [vmest] "r"((uint32_t)0xC0000000), /* User mode + IE (GSR bits 31,30) */
+		  [vmest] "r"((uint32_t)0xC0000000), /* User mode + IE */
+		  [ksp] "r"(kernel_sp),
 		  [stack] "r"(user_sp),
 		  [p1] "r"(p1),
 		  [p2] "r"(p2),
-		  [p3] "r"(p3)
-		: "r0", "r1", "r2", "r4", "r5", "r6", "r7", "r29", "memory"
+		  [p3] "r"(p3),
+		  [exit_fn] "r"((uintptr_t)hexagon_user_thread_exit)
+		: "r0", "r1", "r2", "r4", "r5", "r6", "r7",
+		  "r29", "r30", "r31", "memory"
 	);
 
 	CODE_UNREACHABLE;

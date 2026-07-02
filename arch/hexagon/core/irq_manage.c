@@ -46,18 +46,14 @@ void z_hexagon_event_handler(unsigned int event_num, struct event_context *ctx)
 #endif
 
 	/*
-	 * Re-enable guest interrupts for the duration of the C handler.
-	 * H2 disables IE on event entry, but kernel code (syscalls,
-	 * scheduler) expects arch_irq_lock() to return key=1 (IE was
-	 * enabled) so that subsequent z_swap() calls pass the
-	 * SPIN_VALIDATE assertion.  Nested interrupts are safe because
-	 * EVENT_ENTRY saves all volatile state on the stack.
-	 *
-	 * Exception: don't re-enable during interrupt handling — the ISR
-	 * nesting counter and the EVENT_EXIT preemption check assume
-	 * interrupts stay disabled through the ISR.
+	 * Re-enable guest interrupts for syscall (trap0) handling.
+	 * H2 disables IE on event entry, but kernel syscall code
+	 * (k_sem_take, k_msgq_get, etc.) expects arch_irq_lock() to
+	 * return key=1 (IE was enabled) so that subsequent z_swap()
+	 * calls pass the SPIN_VALIDATE assertion.  Nested interrupts
+	 * are safe because EVENT_ENTRY saves all volatile state.
 	 */
-	if (event_num != HEXAGON_EVENT_INTERRUPT) {
+	if (event_num == HEXAGON_EVENT_TRAP0) {
 		hexagon_vm_setie(VM_INT_ENABLE);
 	}
 
