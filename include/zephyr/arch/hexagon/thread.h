@@ -90,6 +90,14 @@ struct _thread_arch {
 	uint32_t framelimit;
 #endif
 
+#ifdef CONFIG_USERSPACE
+	/* Original entry point and arguments for K_USER threads */
+	void (*user_entry)(void *, void *, void *);
+	void *user_p1;
+	void *user_p2;
+	void *user_p3;
+#endif
+
 #ifdef CONFIG_HEXAGON_HVX
 	/*
 	 * Per-thread HVX context pointer.  Using a dedicated field here
