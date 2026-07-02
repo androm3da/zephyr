@@ -631,7 +631,10 @@ static void gdb_q_packet(uint8_t *buf, size_t len, enum gdb_loop_state *next_sta
 		return;
 	}
 
-	/* Thread enumeration (LLDB requires these) */
+	/*
+	 * Thread enumeration -- single-threaded stub reports one thread.
+	 * Required by LLDB; harmless for GDB.
+	 */
 	if (strncmp(pkt, "qfThreadInfo", 12) == 0) {
 		gdb_send_packet("m1", 2);
 		return;
@@ -641,7 +644,7 @@ static void gdb_q_packet(uint8_t *buf, size_t len, enum gdb_loop_state *next_sta
 		return;
 	}
 
-	/* Current thread ID */
+	/* Current thread ID -- single-threaded stub always reports thread 1. */
 	if (strncmp(pkt, "qC", 2) == 0 && pkt[2] == '\0') {
 		gdb_send_packet("QC1", 3);
 		return;
@@ -909,10 +912,8 @@ int z_gdb_main_loop(struct gdb_ctx *ctx)
 			break;
 
 		/*
-		 * Thread select (H operations).
-		 * LLDB requires Hg (set thread for 'g' ops) and
-		 * Hc (set thread for 'c' ops) to return OK.
-		 * Single-threaded stub: always accept.
+		 * Thread select -- single-threaded stub accepts all
+		 * selections.  Required by LLDB.
 		 */
 		case 'H':
 			gdb_send_packet("OK", 2);
