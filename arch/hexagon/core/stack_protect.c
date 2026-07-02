@@ -50,4 +50,13 @@ void z_arch_stack_protection_switch(struct k_thread *old_thread,
 	}
 }
 
+/*
+ * Called from z_hexagon_thread_start (assembly) to set FRAMELIMIT for
+ * new threads that bypass the normal arch_switch() return path.
+ */
+void z_hexagon_thread_start_stack_protect(struct k_thread *thread)
+{
+	z_arch_stack_protection_switch(NULL, thread);
+}
+
 #endif /* CONFIG_HW_STACK_PROTECTION */
