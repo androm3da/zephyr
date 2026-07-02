@@ -35,6 +35,32 @@ static void z_hexagon_interrupt_handler(struct event_context *ctx);
 /* Main event handler called from assembly */
 void z_hexagon_event_handler(unsigned int event_num, struct event_context *ctx)
 {
+#ifdef CONFIG_USERSPACE
+	/*
+	 * We are now in kernel mode (H2 disabled guest interrupts on
+	 * event entry).  Clear the user-mode flag so that any kernel
+	 * code called from this handler sees arch_is_user_context()=false.
+	 * It will be re-synced before vmrte returns to the thread.
+	 */
+	_hexagon_user_mode_active = 0;
+#endif
+
+	/*
+	 * Re-enable guest interrupts for the duration of the C handler.
+	 * H2 disables IE on event entry, but kernel code (syscalls,
+	 * scheduler) expects arch_irq_lock() to return key=1 (IE was
+	 * enabled) so that subsequent z_swap() calls pass the
+	 * SPIN_VALIDATE assertion.  Nested interrupts are safe because
+	 * EVENT_ENTRY saves all volatile state on the stack.
+	 *
+	 * Exception: don't re-enable during interrupt handling — the ISR
+	 * nesting counter and the EVENT_EXIT preemption check assume
+	 * interrupts stay disabled through the ISR.
+	 */
+	if (event_num != HEXAGON_EVENT_INTERRUPT) {
+		hexagon_vm_setie(VM_INT_ENABLE);
+	}
+
 	switch (event_num) {
 	case HEXAGON_EVENT_MACHINE_CHECK:
 		z_hexagon_fatal_error(K_ERR_CPU_EXCEPTION);
@@ -65,6 +91,23 @@ void z_hexagon_event_handler(unsigned int event_num, struct event_context *ctx)
 		z_hexagon_fatal_error(K_ERR_SPURIOUS_IRQ);
 		break;
 	}
+
+	/*
+	 * Disable interrupts before returning to the EVENT_EXIT assembly
+	 * path.  EVENT_EXIT expects IE=0 for the preemption check and
+	 * vmrte sequence.
+	 */
+	hexagon_vm_setie(VM_INT_DISABLE);
+
+#ifdef CONFIG_USERSPACE
+	/*
+	 * Re-sync the user-mode flag for the thread about to resume.
+	 * After a context switch in EVENT_EXIT, _current may point to a
+	 * different thread than entered.  This ensures arch_is_user_context()
+	 * returns the correct value once execution returns to the thread.
+	 */
+	z_hexagon_user_mode_sync();
+#endif
 }
 
 /* Handle general exceptions */
@@ -297,13 +340,6 @@ static void z_hexagon_trap0_handler(struct event_context *ctx)
 
 		/* Write return value back to the event context */
 		ctx->r0_r1[0] = esf.r0;
-
-		/*
-		 * Re-sync the user-mode flag: if the syscall switched threads
-		 * or the current thread returned to kernel mode, the flag must
-		 * reflect the privilege level of the thread about to run.
-		 */
-		z_hexagon_user_mode_sync();
 	}
 #else
 	/*
