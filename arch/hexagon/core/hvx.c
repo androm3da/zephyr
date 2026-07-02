@@ -358,6 +358,45 @@ void hvx_arch_thread_switch(struct k_thread *old_thread, struct k_thread *new_th
 	}
 }
 
+/*
+ * Called from EVENT_EXIT assembly BEFORE z_hexagon_arch_switch to
+ * eagerly save the old thread's dirty HVX state.
+ */
+void z_hexagon_event_exit_hvx_save(struct k_thread *old_thread)
+{
+	struct hvx_context *old_ctx = old_thread->arch.hvx_ctx;
+
+	if (old_ctx != NULL && old_ctx->context_dirty) {
+		hvx_save_context_asm(old_ctx->vregs);
+		old_ctx->generation++;
+		old_ctx->context_dirty = false;
+	}
+}
+
+/*
+ * Called from EVENT_EXIT assembly AFTER z_hexagon_arch_switch to
+ * restore the new thread's HVX context.
+ */
+void z_hexagon_event_exit_hvx_restore(void)
+{
+	struct k_thread *new_thread = _current;
+	struct hvx_context *new_ctx = new_thread->arch.hvx_ctx;
+
+	if (new_ctx != NULL) {
+		uint8_t xa_value = hvx_context_to_xa(new_ctx->context_num);
+
+		hvx_configure_hardware(hvx_global_config.vector_length_bytes, xa_value);
+		if (!new_ctx->context_valid) {
+			memset(new_ctx->vregs, 0, sizeof(struct hvx_vectors));
+			new_ctx->context_valid = true;
+		}
+		hvx_restore_context_asm(new_ctx->vregs);
+		new_ctx->context_dirty = true;
+	} else {
+		hvx_configure_hardware(hvx_global_config.vector_length_bytes, 0);
+	}
+}
+
 SYS_INIT(hvx_init, POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
 
 #endif /* CONFIG_HEXAGON_HVX */

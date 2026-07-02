@@ -40,7 +40,6 @@ void z_hexagon_event_handler(unsigned int event_num, struct event_context *ctx)
 	 * We are now in kernel mode (H2 disabled guest interrupts on
 	 * event entry).  Clear the user-mode flag so that any kernel
 	 * code called from this handler sees arch_is_user_context()=false.
-	 * It will be re-synced before vmrte returns to the thread.
 	 */
 	_hexagon_user_mode_active = 0;
 #endif
@@ -94,17 +93,24 @@ void z_hexagon_event_handler(unsigned int event_num, struct event_context *ctx)
 	 * vmrte sequence.
 	 */
 	hexagon_vm_setie(VM_INT_DISABLE);
+}
 
 #ifdef CONFIG_USERSPACE
-	/*
-	 * Re-sync the user-mode flag for the thread about to resume.
-	 * After a context switch in EVENT_EXIT, _current may point to a
-	 * different thread than entered.  This ensures arch_is_user_context()
-	 * returns the correct value once execution returns to the thread.
-	 */
-	z_hexagon_user_mode_sync();
-#endif
+/*
+ * Called from EVENT_EXIT assembly AFTER the context switch (or when no
+ * switch occurred).  At this point _current is the thread that will
+ * actually resume, so the flag reflects the correct thread.
+ *
+ * Only sync at nesting level 0 -- nested interrupts return to the
+ * outer handler (still in kernel mode) and must not set the flag to 1.
+ */
+void z_hexagon_event_exit_user_sync(void)
+{
+	if (z_hexagon_isr_nesting == 0) {
+		z_hexagon_user_mode_sync();
+	}
 }
+#endif
 
 /* Handle general exceptions */
 #define GSR_CAUSE_MASK 0xFF

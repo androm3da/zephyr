@@ -59,4 +59,13 @@ void z_hexagon_thread_start_stack_protect(struct k_thread *thread)
 	z_arch_stack_protection_switch(NULL, thread);
 }
 
+/*
+ * Called from EVENT_EXIT assembly after a preemptive context switch.
+ * _current already points to the newly scheduled thread.
+ */
+void z_hexagon_event_exit_stack_protect(void)
+{
+	z_arch_stack_protection_switch(NULL, _current);
+}
+
 #endif /* CONFIG_HW_STACK_PROTECTION */
