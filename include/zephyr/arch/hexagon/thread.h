@@ -70,23 +70,23 @@ struct _thread_arch {
 	/** Return value from arch_switch. */
 	uint32_t swap_return_value;
 
-	/* Thread privilege level */
+	/** Thread privilege level (0 = kernel, 1 = user). */
 	uint8_t priv_level;
 
-	/* Flags */
+	/** Thread flags (HEXAGON_THREAD_FLAG_*). */
 	uint8_t flags;
 
-	/* Hardware thread ID (-1 if not a hardware thread) */
+	/** Hardware thread ID (-1 if not a hardware thread). */
 	int8_t hw_thread_id;
 
-	/* Thread-local storage pointer */
+	/** Thread-local storage pointer. */
 	void *tls_ptr;
 
-	/* User global pointer (UGP) for TLS */
+	/** User global pointer (UGP) for TLS. */
 	uint32_t ugp;
 
 #ifdef CONFIG_HW_STACK_PROTECTION
-	/* Stack protection FRAMELIMIT value */
+	/** Stack protection FRAMELIMIT register value. */
 	uint32_t framelimit;
 #endif
 
