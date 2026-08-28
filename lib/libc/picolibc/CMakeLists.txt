@@ -9,6 +9,7 @@ zephyr_library_sources(
   exit.c
   locks.c
   stdio.c
+  user_strerror.c
   )
 zephyr_include_directories(include)
 
