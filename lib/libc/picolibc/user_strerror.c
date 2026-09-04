@@ -18,11 +18,16 @@
  *
  * Supplying the hook gives the relocation a nearby target. Returning NULL is
  * exactly what picolibc documents the default _user_strerror() to do, so
- * strerror() behaviour is unchanged. An application that defines its own
- * _user_strerror() still wins: this definition lives in an archive member
- * that the linker then has no reason to pull in.
+ * strerror() behaviour is unchanged.
+ *
+ * The definition is weak so that an application can still install its own
+ * hook. It cannot be left strong and relied on not to be pulled in: Zephyr
+ * links every zephyr_library() archive inside --whole-archive (see
+ * WHOLE_ARCHIVE_LIBS in the top-level CMakeLists.txt), so this object is
+ * always part of the image and a strong definition here would collide with
+ * the application's.
  */
-char *_user_strerror(int errnum, int internal, int *errptr)
+__weak char *_user_strerror(int errnum, int internal, int *errptr)
 {
 	ARG_UNUSED(errnum);
 	ARG_UNUSED(internal);

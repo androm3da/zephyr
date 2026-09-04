@@ -1,0 +1,121 @@
+name: Hexagon
+
+# Dedicated smoke-test job for the Hexagon arch port.
+#
+# qemu_hexagon uses the "hexagon" toolchain variant (a standalone Hexagon LLVM
+# cross-toolchain), which the Zephyr SDK does not provide. Twister honours the
+# board's preferred_toolchain, so the main matrix would pick the right variant
+# on its own -- but the board also declares HEXAGON_TOOLCHAIN_PATH in the
+# "env:" list of its platform yaml, and twister treats an unset variable there
+# as a filter ("Environment (HEXAGON_TOOLCHAIN_PATH) not satisfied"). Nothing
+# in twister.yaml sets it, so the platform would be skipped silently and CI
+# would stay green without ever building the port.
+#
+# This workflow therefore runs twister separately, scoped to qemu_hexagon,
+# with the variable pointing at the Hexagon toolchain already installed in the
+# ci image (see zephyrproject-rtos/docker-image Dockerfile.ci) at
+# /opt/toolchains/hexagon/host. That toolchain also bundles its own H2
+# "loadlinux" hypervisor firmware (under <toolchain>/share/qemu/), which QEMU
+# picks up automatically, so no separate hexagon-hypervisor build is needed
+# here.
+#
+# This job can be dropped once HEXAGON_TOOLCHAIN_PATH is exported by the main
+# twister matrix itself.
+
+on:
+  push:
+    branches:
+      - main
+      - v*-branch
+      - collab-*
+  pull_request:
+    branches:
+      - main
+      - v*-branch
+      - collab-*
+    paths:
+      - 'dts/bindings/*/qcom*hexagon*'
+      - 'dts/bindings/interrupt-controller/qcom,hvm-pic.yaml'
+      - 'dts/bindings/timer/qcom,hvm-timer.yaml'
+      - 'arch/hexagon/**'
+      - 'cmake/compiler/clang/target_hexagon.cmake'
+      - 'cmake/toolchain/hexagon/**'
+      - 'cmake/toolchain/host/llvm/**'
+      - 'drivers/*/hexagon_*.c'
+      - 'drivers/*/hexagon_*.h'
+      - 'drivers/timer/Kconfig.hexagon'
+      - 'soc/qemu/hexagon/**'
+      - 'include/zephyr/arch/hexagon/**'
+      - 'boards/qemu/hexagon/**'
+      - '.github/workflows/hexagon.yaml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    container:
+      image: ghcr.io/zephyrproject-rtos/ci:main
+    env:
+      ZEPHYR_TOOLCHAIN_VARIANT: hexagon
+      HEXAGON_TOOLCHAIN_PATH: /opt/toolchains/hexagon/host
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          path: zephyr
+          fetch-depth: 0
+
+      - name: Rebase
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        working-directory: zephyr
+        shell: bash
+        run: |
+          git config --global user.email "actions@zephyrproject.org"
+          git config --global user.name "Github Actions"
+          rm -fr ".git/rebase-apply"
+          rm -fr ".git/rebase-merge"
+          git rebase origin/${BASE_REF}
+          git clean -f -d
+          git log --graph --oneline -n 10
+
+      - name: Install Python packages
+        working-directory: zephyr
+        run: |
+          pip install -r scripts/requirements-actions.txt --require-hashes
+
+      - name: Initialize and update west workspace
+        working-directory: zephyr
+        run: |
+          west init -l . || true
+          west update -o=--depth=1 -n
+
+      - name: Run tests with Twister
+        working-directory: zephyr
+        run: |
+          ./scripts/twister -p qemu_hexagon \
+              --force-color --inline-logs -v \
+              -T samples/hello_world \
+              -T tests/kernel/threads \
+              -T tests/kernel/sleep
+
+      - name: Upload artifacts
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Hexagon Twister Results
+          if-no-files-found: ignore
+          path: |
+            zephyr/twister-out/twister.xml
+            zephyr/twister-out/twister.json
+            zephyr/twister-out/**/build.log
+            zephyr/twister-out/**/handler.log
