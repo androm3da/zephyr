@@ -15,6 +15,9 @@
 #ifndef _ASMLANGUAGE
 #include <zephyr/types.h>
 
+/* Forward declaration to avoid including hvx.h from thread.h */
+struct hvx_context;
+
 /**
  * @brief Callee-saved register context for cooperative context switching.
  */
@@ -55,12 +58,56 @@ struct _callee_saved {
 
 typedef struct _callee_saved _callee_saved_t;
 
+/* Thread flags */
+#define HEXAGON_THREAD_FLAG_ABORT      0x01
+#define HEXAGON_THREAD_FLAG_FP_USED    0x02
+#define HEXAGON_THREAD_FLAG_STACK_PROT 0x04
+
 /**
  * @brief Architecture-specific thread data.
  */
 struct _thread_arch {
 	/** Return value from arch_switch. */
 	uint32_t swap_return_value;
+
+	/* Thread privilege level */
+	uint8_t priv_level;
+
+	/* Flags */
+	uint8_t flags;
+
+	/* Hardware thread ID (-1 if not a hardware thread) */
+	int8_t hw_thread_id;
+
+	/* Thread-local storage pointer */
+	void *tls_ptr;
+
+	/* User global pointer (UGP) for TLS */
+	uint32_t ugp;
+
+#ifdef CONFIG_HW_STACK_PROTECTION
+	/* Stack protection FRAMELIMIT value */
+	uint32_t framelimit;
+#endif
+
+#ifdef CONFIG_USERSPACE
+	/* Original entry point and arguments for K_USER threads */
+	void (*user_entry)(void *, void *, void *);
+	void *user_p1;
+	void *user_p2;
+	void *user_p3;
+#endif
+
+#ifdef CONFIG_HEXAGON_HVX
+	/*
+	 * Per-thread HVX context pointer.  Using a dedicated field here
+	 * (rather than k_thread_custom_data) avoids conflicting with
+	 * application use of the custom-data slot.
+	 *
+	 * NULL means this thread has not allocated an HVX context.
+	 */
+	struct hvx_context *hvx_ctx;
+#endif
 };
 
 typedef struct _thread_arch _thread_arch_t;
